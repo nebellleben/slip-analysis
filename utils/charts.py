@@ -1,6 +1,8 @@
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 from typing import Dict, List, Optional
 
 from utils.data_processor import get_date_normalized
@@ -112,6 +114,7 @@ def create_train_location_scatter(
         return go.Figure()
 
     df = df.copy()
+    df = get_date_normalized(df)
     df["Location_Order"] = df["Position"].map(location_order)
     df = df.dropna(subset=["Location_Order"])
 
@@ -123,16 +126,20 @@ def create_train_location_scatter(
             df["Display_ID"].unique(), key=lambda x: (len(str(x)), str(x))
         )
 
+    unique_dates = sorted(df["Date"].unique())
+    date_min = unique_dates[0]
+    date_max = unique_dates[-1]
+
     fig = px.scatter(
         df,
         x="Position",
         y="Display_ID",
-        color="Date",
+        color="Date_Numeric",
         title=title,
         labels={
             "Position": "Location",
             "Display_ID": "Train",
-            "Date": "Date",
+            "Date_Numeric": "Date",
         },
         category_orders={
             "Position": [
@@ -141,14 +148,25 @@ def create_train_location_scatter(
             "Display_ID": train_order,
         },
         color_continuous_scale="Viridis",
+        range_color=[0, 1],
     )
+
+    n_ticks = min(10, len(unique_dates))
+    tick_vals = [i / (n_ticks - 1) for i in range(n_ticks)] if n_ticks > 1 else [0]
+    tick_labels = [
+        str(unique_dates[int(v * (len(unique_dates) - 1))]) for v in tick_vals
+    ]
 
     fig.update_layout(
         xaxis_tickangle=-45,
         height=max(500, len(train_order) * 15),
         xaxis_title="Location (Sequential Order)",
         yaxis_title="Train ID",
-        coloraxis_colorbar=dict(title="Date"),
+        coloraxis_colorbar=dict(
+            title="Date",
+            tickvals=tick_vals,
+            ticktext=tick_labels,
+        ),
     )
 
     return fig
@@ -161,35 +179,74 @@ def create_train_bar_chart(
         return go.Figure()
 
     df = df.copy()
+    df = get_date_normalized(df)
 
-    train_counts = df.groupby(["Display_ID", "Date"]).size().reset_index(name="Count")
+    train_counts = (
+        df.groupby(["Display_ID", "Date", "Date_Numeric"])
+        .size()
+        .reset_index(name="Count")
+    )
     train_totals = (
         train_counts.groupby("Display_ID")["Count"].sum().sort_values(ascending=False)
     )
     train_order = train_totals.index.tolist()
 
-    fig = px.bar(
-        train_counts,
-        x="Display_ID",
-        y="Count",
-        color="Date",
-        title=title,
-        labels={
-            "Display_ID": "Train ID",
-            "Count": "Number of Slips",
-            "Date": "Date",
-        },
-        category_orders={"Display_ID": train_order},
-        color_continuous_scale="Viridis",
+    unique_dates = sorted(train_counts["Date"].unique())
+
+    fig = go.Figure()
+
+    for date in unique_dates:
+        date_data = train_counts[train_counts["Date"] == date]
+        date_numeric = date_data["Date_Numeric"].iloc[0]
+
+        color_val = cm.viridis(date_numeric)
+
+        fig.add_trace(
+            go.Bar(
+                name=str(date),
+                x=date_data["Display_ID"],
+                y=date_data["Count"],
+                marker_color=f"rgb({int(color_val[0] * 255)}, {int(color_val[1] * 255)}, {int(color_val[2] * 255)})",
+                showlegend=False,
+            )
+        )
+
+    n_ticks = min(10, len(unique_dates))
+    tick_vals = [i / (n_ticks - 1) for i in range(n_ticks)] if n_ticks > 1 else [0]
+    tick_labels = [
+        str(unique_dates[int(v * (len(unique_dates) - 1))]) for v in tick_vals
+    ]
+
+    fig.add_trace(
+        go.Scatter(
+            x=[None],
+            y=[None],
+            mode="markers",
+            marker=dict(
+                colorscale="Viridis",
+                cmin=0,
+                cmax=1,
+                colorbar=dict(
+                    title="Date",
+                    tickvals=tick_vals,
+                    ticktext=tick_labels,
+                    len=0.75,
+                ),
+                showscale=True,
+            ),
+            hoverinfo="none",
+            showlegend=False,
+        )
     )
 
     fig.update_layout(
+        barmode="stack",
+        title=title,
         xaxis_tickangle=-45,
         height=500,
         xaxis_title="Train ID",
         yaxis_title="Number of Slip Occurrences",
-        barmode="stack",
-        coloraxis_colorbar=dict(title="Date"),
+        xaxis={"categoryorder": "array", "categoryarray": train_order},
     )
 
     return fig
@@ -202,35 +259,74 @@ def create_location_bar_chart(
         return go.Figure()
 
     df = df.copy()
+    df = get_date_normalized(df)
 
-    location_counts = df.groupby(["Position", "Date"]).size().reset_index(name="Count")
+    location_counts = (
+        df.groupby(["Position", "Date", "Date_Numeric"])
+        .size()
+        .reset_index(name="Count")
+    )
     location_totals = (
         location_counts.groupby("Position")["Count"].sum().sort_values(ascending=False)
     )
     location_order = location_totals.index.tolist()
 
-    fig = px.bar(
-        location_counts,
-        x="Position",
-        y="Count",
-        color="Date",
-        title=title,
-        labels={
-            "Position": "Location",
-            "Count": "Number of Slips",
-            "Date": "Date",
-        },
-        category_orders={"Position": location_order},
-        color_continuous_scale="Viridis",
+    unique_dates = sorted(location_counts["Date"].unique())
+
+    fig = go.Figure()
+
+    for date in unique_dates:
+        date_data = location_counts[location_counts["Date"] == date]
+        date_numeric = date_data["Date_Numeric"].iloc[0]
+
+        color_val = cm.viridis(date_numeric)
+
+        fig.add_trace(
+            go.Bar(
+                name=str(date),
+                x=date_data["Position"],
+                y=date_data["Count"],
+                marker_color=f"rgb({int(color_val[0] * 255)}, {int(color_val[1] * 255)}, {int(color_val[2] * 255)})",
+                showlegend=False,
+            )
+        )
+
+    n_ticks = min(10, len(unique_dates))
+    tick_vals = [i / (n_ticks - 1) for i in range(n_ticks)] if n_ticks > 1 else [0]
+    tick_labels = [
+        str(unique_dates[int(v * (len(unique_dates) - 1))]) for v in tick_vals
+    ]
+
+    fig.add_trace(
+        go.Scatter(
+            x=[None],
+            y=[None],
+            mode="markers",
+            marker=dict(
+                colorscale="Viridis",
+                cmin=0,
+                cmax=1,
+                colorbar=dict(
+                    title="Date",
+                    tickvals=tick_vals,
+                    ticktext=tick_labels,
+                    len=0.75,
+                ),
+                showscale=True,
+            ),
+            hoverinfo="none",
+            showlegend=False,
+        )
     )
 
     fig.update_layout(
+        barmode="stack",
+        title=title,
         xaxis_tickangle=-45,
         height=500,
         xaxis_title="Location",
         yaxis_title="Number of Slip Occurrences",
-        barmode="stack",
-        coloraxis_colorbar=dict(title="Date"),
+        xaxis={"categoryorder": "array", "categoryarray": location_order},
     )
 
     return fig
