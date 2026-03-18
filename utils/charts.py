@@ -223,12 +223,11 @@ def create_train_location_scatter(
 
     df = df.copy()
     df = get_date_normalized(df)
-    df["Date_Numeric_Reversed"] = 1 - df["Date_Numeric"]
     df["Location_Order"] = df["Position"].map(location_order)
     df = df.dropna(subset=["Location_Order"])
 
     occurrence_counts = (
-        df.groupby(["Date", "Display_ID", "Position", "Date_Numeric_Reversed"])
+        df.groupby(["Date", "Display_ID", "Position", "Date_Numeric"])
         .size()
         .reset_index(name="Count")
     )
@@ -255,7 +254,7 @@ def create_train_location_scatter(
         occurrence_counts,
         x="Position",
         y="Display_ID",
-        color="Date_Numeric_Reversed",
+        color="Date_Numeric",
         size="Count",
         size_max=30,
         hover_name="Display_ID",
@@ -264,13 +263,13 @@ def create_train_location_scatter(
             "Position": True,
             "Date": True,
             "Count": True,
-            "Date_Numeric_Reversed": False,
+            "Date_Numeric": False,
         },
         title=title,
         labels={
             "Position": "Location",
             "Display_ID": "Train",
-            "Date_Numeric_Reversed": "Date",
+            "Date_Numeric": "Date",
             "Count": "Occurrences",
         },
         category_orders={
@@ -279,7 +278,7 @@ def create_train_location_scatter(
             ],
             "Display_ID": train_order,
         },
-        color_continuous_scale="Viridis",
+        color_continuous_scale="Viridis_r",
         range_color=[0, 1],
     )
 
@@ -291,7 +290,7 @@ def create_train_location_scatter(
     )
 
     n_ticks = min(10, len(unique_dates))
-    tick_vals = [1 - i / (n_ticks - 1) for i in range(n_ticks)] if n_ticks > 1 else [0]
+    tick_vals = [i / (n_ticks - 1) for i in range(n_ticks)] if n_ticks > 1 else [0]
     tick_labels = [
         str(unique_dates[int(v * (len(unique_dates) - 1))]) for v in tick_vals
     ]
@@ -351,7 +350,7 @@ def create_train_bar_chart(
         )
 
     n_ticks = min(10, len(unique_dates))
-    tick_vals = [1 - i / (n_ticks - 1) for i in range(n_ticks)] if n_ticks > 1 else [0]
+    tick_vals = [i / (n_ticks - 1) for i in range(n_ticks)] if n_ticks > 1 else [0]
     tick_labels = [
         str(unique_dates[int(v * (len(unique_dates) - 1))]) for v in tick_vals
     ]
@@ -362,7 +361,7 @@ def create_train_bar_chart(
             y=[None],
             mode="markers",
             marker=dict(
-                colorscale="Viridis",
+                colorscale="Viridis_r",
                 cmin=0,
                 cmax=1,
                 colorbar=dict(
@@ -432,7 +431,7 @@ def create_location_bar_chart(
         )
 
     n_ticks = min(10, len(unique_dates))
-    tick_vals = [1 - i / (n_ticks - 1) for i in range(n_ticks)] if n_ticks > 1 else [0]
+    tick_vals = [i / (n_ticks - 1) for i in range(n_ticks)] if n_ticks > 1 else [0]
     tick_labels = [
         str(unique_dates[int(v * (len(unique_dates) - 1))]) for v in tick_vals
     ]
@@ -443,7 +442,7 @@ def create_location_bar_chart(
             y=[None],
             mode="markers",
             marker=dict(
-                colorscale="Viridis",
+                colorscale="Viridis_r",
                 cmin=0,
                 cmax=1,
                 colorbar=dict(
