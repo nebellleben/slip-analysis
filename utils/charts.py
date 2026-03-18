@@ -124,26 +124,51 @@ def create_train_location_scatter(
     df["Location_Order"] = df["Position"].map(location_order)
     df = df.dropna(subset=["Location_Order"])
 
+    occurrence_counts = (
+        df.groupby(["Date", "Display_ID", "Position", "Date_Numeric_Reversed"])
+        .size()
+        .reset_index(name="Count")
+    )
+    occurrence_counts["Location_Order"] = occurrence_counts["Position"].map(
+        location_order
+    )
+
     if sort_by_frequency:
-        train_counts = df.groupby("Display_ID").size().sort_values(ascending=True)
+        train_counts = (
+            occurrence_counts.groupby("Display_ID")["Count"]
+            .sum()
+            .sort_values(ascending=True)
+        )
         train_order = train_counts.index.tolist()
     else:
         train_order = sorted(
-            df["Display_ID"].unique(), key=lambda x: (len(str(x)), str(x))
+            occurrence_counts["Display_ID"].unique(),
+            key=lambda x: (len(str(x)), str(x)),
         )
 
-    unique_dates = sorted(df["Date"].unique())
+    unique_dates = sorted(occurrence_counts["Date"].unique())
 
     fig = px.scatter(
-        df,
+        occurrence_counts,
         x="Position",
         y="Display_ID",
         color="Date_Numeric_Reversed",
+        size="Count",
+        size_max=30,
+        hover_name="Display_ID",
+        hover_data={
+            "Display_ID": True,
+            "Position": True,
+            "Date": True,
+            "Count": True,
+            "Date_Numeric_Reversed": False,
+        },
         title=title,
         labels={
             "Position": "Location",
             "Display_ID": "Train",
             "Date_Numeric_Reversed": "Date",
+            "Count": "Occurrences",
         },
         category_orders={
             "Position": [
@@ -153,6 +178,13 @@ def create_train_location_scatter(
         },
         color_continuous_scale="Viridis",
         range_color=[0, 1],
+    )
+
+    fig.update_traces(
+        marker=dict(
+            sizemin=8,
+            line=dict(width=1, color="white"),
+        )
     )
 
     n_ticks = min(10, len(unique_dates))
