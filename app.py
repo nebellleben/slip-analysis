@@ -1,34 +1,35 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime,import io
+from datetime import datetime
+import io
 
 from utils.data_loader import (
     load_alarm_data,
     load_alarm_data_from_upload,
     load_loop_sequence,
-    load_train_id_mapping
+    load_train_id_mapping,
 )
 from utils.data_processor import (
     build_location_order_map,
     get_valid_locations,
-    filter_valid_locations
-    infer_direction
-    deduplicate_slips
-    build_id_mapping
-    convert_id
-    filter_by_date_range
-    filter_by_direction
+    filter_valid_locations,
+    infer_direction,
+    deduplicate_slips,
+    build_id_mapping,
+    convert_id,
+    filter_by_date_range,
+    filter_by_direction,
 )
 from utils.charts import (
     create_date_location_scatter,
-    create_date_train_scatter
-    create_train_location_scatter
-    create_train_bar_chart
-    create_location_bar_chart
-    create_date_bar_chart
-    create_heatmap_train_location
-    create_heatmap_train_time
-    create_heatmap_location_time
+    create_date_train_scatter,
+    create_train_location_scatter,
+    create_train_bar_chart,
+    create_location_bar_chart,
+    create_date_bar_chart,
+    create_heatmap_train_location,
+    create_heatmap_train_time,
+    create_heatmap_location_time,
 )
 
 st.set_page_config(page_title="Slip Analysis Dashboard", page_icon="🚇", layout="wide")
@@ -41,19 +42,14 @@ def load_data():
     alarm_df = load_alarm_data()
     dt_seq, ut_seq = load_loop_sequence()
     train_mapping = load_train_id_mapping()
-    return alarm_df, dt_seq, ut_seq, train_mapping, date_range
+    return alarm_df, dt_seq, ut_seq, train_mapping
 
 
- date_range = df['Date'].max()
- alarm_df['Date'] = alarm_df['Logger Datetime'].dt.date
+alarm_df, dt_seq, ut_seq, train_mapping = load_data()
+alarm_df["Date"] = alarm_df["Logger Datetime"].dt.date
 
-min_date = alarm_df['Date'].min()
-max_date
- alarm_df['Date'] = pd.to_datetime(alarm_df['Date']).max()
- alarm_df['Date'] =pd.to_datetime(alarm_df['Date'])
-
-min_date = alarm_df['Date'].min()
-max_date
+min_date = pd.to_datetime(alarm_df["Date"]).min()
+max_date = pd.to_datetime(alarm_df["Date"]).max()
 
 date_range = st.sidebar.slider(
     "Date Range",
@@ -160,14 +156,10 @@ if show_down and show_up:
         )
         st.plotly_chart(fig2_ut, use_container_width=True)
 elif show_down:
-    fig2 = create_date_train_scatter(
-        df_dt, "Date vs Train (Down)", selected_trains_d2
-    )
+    fig2 = create_date_train_scatter(df_dt, "Date vs Train (Down)", selected_trains_d2)
     st.plotly_chart(fig2, use_container_width=True)
 elif show_up:
-    fig2 = create_date_train_scatter(
-        df_ut, "Date vs Train (Up)", selected_trains_d2
-    )
+    fig2 = create_date_train_scatter(df_ut, "Date vs Train (Up)", selected_trains_d2)
     st.plotly_chart(fig2, use_container_width=True)
 
 st.divider()
@@ -322,10 +314,14 @@ if show_down and show_up:
         )
         st.plotly_chart(fig6c_ut, use_container_width=True)
 elif show_down:
-    fig6c = create_heatmap_location_time(df_dt, dt_order, "Location vs Time of Day (Down)")
+    fig6c = create_heatmap_location_time(
+        df_dt, dt_order, "Location vs Time of Day (Down)"
+    )
     st.plotly_chart(fig6c, use_container_width=True)
 elif show_up:
-    fig6c = create_heatmap_location_time(df_ut, ut_order, "Location vs Time of Day (Up)")
+    fig6c = create_heatmap_location_time(
+        df_ut, ut_order, "Location vs Time of Day (Up)"
+    )
     st.plotly_chart(fig6c, use_container_width=True)
 
 st.divider()
@@ -347,33 +343,34 @@ with col_filter2:
     st.subheader(f"Filter by {id_type}")
     all_ids = sorted(df["Display_ID"].unique(), key=lambda x: (len(str(x)), str(x)))
     selected_ids = st.multiselect(
-        f"Filter by {id_type}",
-        options=all_ids
-        default=[],
-        key="table_ids"
+        f"Filter by {id_type}", options=all_ids, default=[], key="table_ids"
     )
 table_df = df.copy()
 if selected_locations:
     table_df = table_df[table_df["Position"].isin(selected_locations)]
 if selected_ids:
-    table_df = table_df[table_df["Display_ID"].isin(selected_ids)
+    table_df = table_df[table_df["Display_ID"].isin(selected_ids)]
 display_columns = [
     "Logger Datetime",
-    "Server Datetime"
-    "Display_ID"
-    "Position"
-    "Pos"
-    "VOBC Status"
-    "Detail"
-    "Alarm Level"
+    "Server Datetime",
+    "Display_ID",
+    "Position",
+    "Pos",
+    "VOBC Status",
+    "Detail",
+    "Alarm Level",
 ]
 st.dataframe(
     table_df[display_columns],
     use_container_width=True,
     hide_index=True,
     column_config={
-        "Logger Datetime": st.column_config.DatetimeColumn("Logger Datetime", format="YYYY-MM-DD HH:mm:ss"),
-        "Server Datetime": st.column_config.DatetimeColumn("Server Datetime", format="YYYY-MM-DD HH:mm:ss"),
+        "Logger Datetime": st.column_config.DatetimeColumn(
+            "Logger Datetime", format="YYYY-MM-DD HH:mm:ss"
+        ),
+        "Server Datetime": st.column_config.DatetimeColumn(
+            "Server Datetime", format="YYYY-MM-DD HH:mm:ss"
+        ),
     },
 )
 st.caption(f"Showing {len(table_df)} records (filtered from {len(df)} total)")
