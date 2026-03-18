@@ -71,41 +71,15 @@ def create_date_train_scatter(
     if selected_trains:
         df = df[df["Display_ID"].isin(selected_trains)]
 
-    occurrence_counts = (
-        df.groupby(["Date", "Display_ID"]).size().reset_index(name="Count")
-    )
-
-    train_order = sorted(
-        occurrence_counts["Display_ID"].unique(),
-        key=lambda x: (len(str(x)), str(x)),
-    )
-
-    max_count = occurrence_counts["Count"].max() if len(occurrence_counts) > 0 else 1
-    occurrence_counts["Size_Normalized"] = (
-        occurrence_counts["Count"] / max_count * 15 + 5
-    )
+    train_order = sorted(df["Display_ID"].unique(), key=lambda x: (len(str(x)), str(x)))
 
     fig = px.scatter(
-        occurrence_counts,
+        df,
         x="Display_ID",
         y="Date",
-        size="Size_Normalized",
         title=title,
-        labels={
-            "Display_ID": "Train ID",
-            "Date": "Date",
-            "Count": "Occurrences",
-        },
+        labels={"Display_ID": "Train ID", "Date": "Date"},
         category_orders={"Display_ID": train_order},
-        size_max=20,
-    )
-
-    fig.update_traces(
-        marker=dict(
-            sizemode="diameter",
-            opacity=0.8,
-            line=dict(width=1, color="DarkSlateGrey"),
-        )
     )
 
     fig.update_layout(
