@@ -8,6 +8,7 @@ from utils.data_loader import (
     load_alarm_data_from_upload,
     load_loop_sequence,
     load_train_id_mapping,
+    load_rainfall_data,
 )
 from utils.data_processor import (
     build_location_order_map,
@@ -42,10 +43,11 @@ def load_data():
     alarm_df = load_alarm_data()
     dt_seq, ut_seq = load_loop_sequence()
     train_mapping = load_train_id_mapping()
-    return alarm_df, dt_seq, ut_seq, train_mapping
+    rainfall_df = load_rainfall_data()
+    return alarm_df, dt_seq, ut_seq, train_mapping, rainfall_df
 
 
-alarm_df, dt_seq, ut_seq, train_mapping = load_data()
+alarm_df, dt_seq, ut_seq, train_mapping, rainfall_df = load_data()
 alarm_df["Date"] = alarm_df["Logger Datetime"].dt.date
 
 min_date = alarm_df["Date"].min()
@@ -107,23 +109,23 @@ if show_down and show_up:
     with col1:
         st.subheader("Down Direction")
         fig1_dt = create_date_location_scatter(
-            df_dt, dt_order, "Date vs Location (Down)", selected_trains_d1
+            df_dt, dt_order, "Date vs Location (Down)", selected_trains_d1, rainfall_df
         )
         st.plotly_chart(fig1_dt, use_container_width=True)
     with col2:
         st.subheader("Up Direction")
         fig1_ut = create_date_location_scatter(
-            df_ut, ut_order, "Date vs Location (Up)", selected_trains_d1
+            df_ut, ut_order, "Date vs Location (Up)", selected_trains_d1, rainfall_df
         )
         st.plotly_chart(fig1_ut, use_container_width=True)
 elif show_down:
     fig1 = create_date_location_scatter(
-        df_dt, dt_order, "Date vs Location (Down)", selected_trains_d1
+        df_dt, dt_order, "Date vs Location (Down)", selected_trains_d1, rainfall_df
     )
     st.plotly_chart(fig1, use_container_width=True)
 elif show_up:
     fig1 = create_date_location_scatter(
-        df_ut, ut_order, "Date vs Location (Up)", selected_trains_d1
+        df_ut, ut_order, "Date vs Location (Up)", selected_trains_d1, rainfall_df
     )
     st.plotly_chart(fig1, use_container_width=True)
 
@@ -146,20 +148,24 @@ if show_down and show_up:
     with col1:
         st.subheader("Down Direction")
         fig2_dt = create_date_train_scatter(
-            df_dt, "Date vs Train (Down)", selected_trains_d2
+            df_dt, "Date vs Train (Down)", selected_trains_d2, rainfall_df
         )
         st.plotly_chart(fig2_dt, use_container_width=True)
     with col2:
         st.subheader("Up Direction")
         fig2_ut = create_date_train_scatter(
-            df_ut, "Date vs Train (Up)", selected_trains_d2
+            df_ut, "Date vs Train (Up)", selected_trains_d2, rainfall_df
         )
         st.plotly_chart(fig2_ut, use_container_width=True)
 elif show_down:
-    fig2 = create_date_train_scatter(df_dt, "Date vs Train (Down)", selected_trains_d2)
+    fig2 = create_date_train_scatter(
+        df_dt, "Date vs Train (Down)", selected_trains_d2, rainfall_df
+    )
     st.plotly_chart(fig2, use_container_width=True)
 elif show_up:
-    fig2 = create_date_train_scatter(df_ut, "Date vs Train (Up)", selected_trains_d2)
+    fig2 = create_date_train_scatter(
+        df_ut, "Date vs Train (Up)", selected_trains_d2, rainfall_df
+    )
     st.plotly_chart(fig2, use_container_width=True)
 
 st.divider()

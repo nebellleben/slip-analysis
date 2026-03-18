@@ -4,8 +4,50 @@ import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from typing import Dict, List, Optional
+from datetime import date
 
 from utils.data_processor import get_date_normalized
+
+
+def _add_rainfall_background(
+    fig: go.Figure,
+    df: pd.DataFrame,
+    rainfall_data: Optional[pd.DataFrame],
+) -> None:
+    if rainfall_data is None or rainfall_data.empty:
+        return
+
+    unique_dates = df["Date"].unique()
+    max_rainfall = rainfall_data["Rainfall"].max()
+    if max_rainfall == 0:
+        max_rainfall = 1
+
+    for dt in unique_dates:
+        if isinstance(dt, date):
+            dt_date = dt
+        else:
+            dt_date = pd.to_datetime(dt).date()
+
+        rain_row = rainfall_data[rainfall_data["Date"].dt.date == dt_date]
+        if len(rain_row) > 0:
+            rainfall = rain_row["Rainfall"].values[0]
+        else:
+            rainfall = 0
+
+        alpha = min(0.7, rainfall / max_rainfall * 0.7 + 0.05)
+
+        fig.add_shape(
+            type="rect",
+            xref="paper",
+            yref="y",
+            x0=0,
+            y0=str(dt),
+            x1=1,
+            y1=str(dt),
+            fillcolor=f"rgba(0, 100, 200, {alpha})",
+            layer="below",
+            line=dict(width=0),
+        )
 
 
 def create_date_location_scatter(
@@ -13,6 +55,7 @@ def create_date_location_scatter(
     location_order: Dict[str, int],
     title: str = "Slip Occurrences: Date vs Location",
     selected_trains: Optional[List[str]] = None,
+    rainfall_data: Optional[pd.DataFrame] = None,
 ) -> go.Figure:
     if df.empty:
         return go.Figure()
@@ -48,6 +91,8 @@ def create_date_location_scatter(
         },
     )
 
+    _add_rainfall_background(fig, occurrence_counts, rainfall_data)
+
     fig.update_layout(
         xaxis_tickangle=-45,
         height=500,
@@ -62,6 +107,7 @@ def create_date_train_scatter(
     df: pd.DataFrame,
     title: str = "Slip Occurrences: Date vs Train",
     selected_trains: Optional[List[str]] = None,
+    rainfall_data: Optional[pd.DataFrame] = None,
 ) -> go.Figure:
     if df.empty:
         return go.Figure()
@@ -93,12 +139,15 @@ def create_date_train_scatter(
         category_orders={"Display_ID": train_order},
     )
 
+    _add_rainfall_background(fig, occurrence_counts, rainfall_data)
+
     fig.update_traces(
         marker=dict(
             sizemin=8,
             line=dict(width=1, color="white"),
         )
     )
+
     fig.update_layout(
         xaxis_tickangle=-45,
         height=500,

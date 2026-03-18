@@ -46,3 +46,15 @@ def load_train_id_mapping(
 ) -> pd.DataFrame:
     df = pd.read_excel(file_path)
     return df
+
+
+def load_rainfall_data(
+    file_path: str = "resources/daily_HKO_RF_ALL.csv",
+) -> pd.DataFrame:
+    df = pd.read_csv(file_path, skiprows=2)
+    df.columns = ["Year", "Month", "Day", "Value", "Completeness"]
+    df["Date"] = pd.to_datetime(
+        {"year": df["Year"], "month": df["Month"], "day": df["Day"]}
+    )
+    df["Rainfall"] = pd.to_numeric(df["Value"], errors="coerce").fillna(0)
+    return df[["Date", "Rainfall"]]
