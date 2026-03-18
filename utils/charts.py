@@ -13,7 +13,10 @@ def _add_rainfall_background(
     fig: go.Figure,
     df: pd.DataFrame,
     rainfall_data: Optional[pd.DataFrame],
+    show_rainfall: bool = True,
 ) -> None:
+    if not show_rainfall:
+        return
     if rainfall_data is None or rainfall_data.empty:
         return
 
@@ -73,6 +76,7 @@ def create_date_location_scatter(
     title: str = "Slip Occurrences: Date vs Location",
     selected_trains: Optional[List[str]] = None,
     rainfall_data: Optional[pd.DataFrame] = None,
+    show_rainfall: bool = True,
 ) -> go.Figure:
     if df.empty:
         return go.Figure()
@@ -108,7 +112,7 @@ def create_date_location_scatter(
         },
     )
 
-    _add_rainfall_background(fig, occurrence_counts, rainfall_data)
+    _add_rainfall_background(fig, occurrence_counts, rainfall_data, show_rainfall)
 
     fig.update_layout(
         xaxis_tickangle=-45,
@@ -125,6 +129,7 @@ def create_date_train_scatter(
     title: str = "Slip Occurrences: Date vs Train",
     selected_trains: Optional[List[str]] = None,
     rainfall_data: Optional[pd.DataFrame] = None,
+    show_rainfall: bool = True,
 ) -> go.Figure:
     if df.empty:
         return go.Figure()
@@ -156,7 +161,7 @@ def create_date_train_scatter(
         category_orders={"Display_ID": train_order},
     )
 
-    _add_rainfall_background(fig, occurrence_counts, rainfall_data)
+    _add_rainfall_background(fig, occurrence_counts, rainfall_data, show_rainfall)
 
     fig.update_traces(
         marker=dict(
@@ -596,6 +601,119 @@ def create_heatmap_location_time(
     fig.update_layout(
         height=max(500, len(pivot.index) * 12),
         xaxis=dict(tickmode="linear", tick0=0, dtick=1),
+        yaxis_tickangle=-45,
+    )
+
+    return fig
+
+
+def create_heatmap_train_rainfall(
+    df: pd.DataFrame,
+    rainfall_data: pd.DataFrame,
+    title: str = "Correlation: Train vs Rainfall",
+) -> go.Figure:
+    if df.empty or rainfall_data.empty:
+        return go.Figure()
+
+    df = df.copy()
+    rainfall_data = rainfall_data.copy()
+
+    rainfall_data["DateObj"] = rainfall_data["Date"].dt.date
+    df["DateObj"] = df["Date"]
+
+    df = df.merge(rainfall_data[["DateObj", "Rainfall"]], on="DateObj", how="left")
+    df["Rainfall"] = df["Rainfall"].fillna(0)
+
+    bins = [0, 0.1, 10, 25, 50, 100, float("inf")]
+    labels = ["0", "0.1-10", "10-25", "25-50", "50-100", "100+"]
+    df["Rainfall_Bin"] = pd.cut(
+        df["Rainfall"], bins=bins, labels=labels, include_lowest=True
+    )
+
+    pivot = df.pivot_table(
+        index="Display_ID",
+        columns="Rainfall_Bin",
+        values="Logger Datetime",
+        aggfunc="count",
+        fill_value=0,
+    )
+
+    for lbl in labels:
+        if lbl not in pivot.columns:
+            pivot[lbl] = 0
+    pivot = pivot[labels]
+
+    fig = px.imshow(
+        pivot,
+        title=title,
+        labels=dict(x="Rainfall (mm)", y="Train ID", color="Slip Count"),
+        color_continuous_scale="Blues",
+    )
+
+    fig.update_layout(
+        height=max(500, len(pivot.index) * 15),
+        xaxis_tickangle=-45,
+    )
+
+    return fig
+
+
+def create_heatmap_location_rainfall(
+    df: pd.DataFrame,
+    location_order: Dict[str, int],
+    rainfall_data: pd.DataFrame,
+    title: str = "Correlation: Location vs Rainfall",
+) -> go.Figure:
+    if df.empty or rainfall_data.empty:
+        return go.Figure()
+
+    df = df.copy()
+    rainfall_data = rainfall_data.copy()
+    df["Location_Order"] = df["Position"].map(location_order)
+    df = df.dropna(subset=["Location_Order"])
+
+    rainfall_data["DateObj"] = rainfall_data["Date"].dt.date
+    df["DateObj"] = df["Date"]
+
+    df = df.merge(rainfall_data[["DateObj", "Rainfall"]], on="DateObj", how="left")
+    df["Rainfall"] = df["Rainfall"].fillna(0)
+
+    bins = [0, 0.1, 10, 25, 50, 100, float("inf")]
+    labels = ["0", "0.1-10", "10-25", "25-50", "50-100", "100+"]
+    df["Rainfall_Bin"] = pd.cut(
+        df["Rainfall"], bins=bins, labels=labels, include_lowest=True
+    )
+
+    pivot = df.pivot_table(
+        index="Position",
+        columns="Rainfall_Bin",
+        values="Logger Datetime",
+        aggfunc="count",
+        fill_value=0,
+    )
+
+    sorted_locations = [
+        k
+        for k, v in sorted(location_order.items(), key=lambda x: x[1])
+        if k in pivot.index
+    ]
+    pivot = pivot.reindex(sorted_locations)
+
+    for lbl in labels:
+        if lbl not in pivot.columns:
+            pivot[lbl] = 0
+    pivot = pivot[labels]
+
+    fig = px.imshow(
+        pivot,
+        title=title,
+        labels=dict(x="Rainfall (mm)", y="Location", color="Slip Count"),
+        color_continuous_scale="Blues",
+    )
+
+    fig.update_layout(
+        height=max(500, len(pivot.index) * 12),
+        xaxis_tickangle=-45,
         yaxis_tickangle=-45,
     )
 

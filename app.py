@@ -31,6 +31,8 @@ from utils.charts import (
     create_heatmap_train_location,
     create_heatmap_train_time,
     create_heatmap_location_time,
+    create_heatmap_train_rainfall,
+    create_heatmap_location_rainfall,
 )
 
 st.set_page_config(page_title="Slip Analysis Dashboard", page_icon="🚇", layout="wide")
@@ -73,6 +75,8 @@ id_type = st.sidebar.selectbox(
     "ID Type", options=["Train ID", "Cab ID", "VOBC"], index=0
 )
 
+show_rainfall_overlay = st.sidebar.checkbox("Show Rainfall Overlay", value=True)
+
 dt_order, ut_order = build_location_order_map(dt_seq, ut_seq)
 
 valid_locations = get_valid_locations(dt_seq, ut_seq)
@@ -109,23 +113,43 @@ if show_down and show_up:
     with col1:
         st.subheader("Down Direction")
         fig1_dt = create_date_location_scatter(
-            df_dt, dt_order, "Date vs Location (Down)", selected_trains_d1, rainfall_df
+            df_dt,
+            dt_order,
+            "Date vs Location (Down)",
+            selected_trains_d1,
+            rainfall_df,
+            show_rainfall_overlay,
         )
         st.plotly_chart(fig1_dt, use_container_width=True)
     with col2:
         st.subheader("Up Direction")
         fig1_ut = create_date_location_scatter(
-            df_ut, ut_order, "Date vs Location (Up)", selected_trains_d1, rainfall_df
+            df_ut,
+            ut_order,
+            "Date vs Location (Up)",
+            selected_trains_d1,
+            rainfall_df,
+            show_rainfall_overlay,
         )
         st.plotly_chart(fig1_ut, use_container_width=True)
 elif show_down:
     fig1 = create_date_location_scatter(
-        df_dt, dt_order, "Date vs Location (Down)", selected_trains_d1, rainfall_df
+        df_dt,
+        dt_order,
+        "Date vs Location (Down)",
+        selected_trains_d1,
+        rainfall_df,
+        show_rainfall_overlay,
     )
     st.plotly_chart(fig1, use_container_width=True)
 elif show_up:
     fig1 = create_date_location_scatter(
-        df_ut, ut_order, "Date vs Location (Up)", selected_trains_d1, rainfall_df
+        df_ut,
+        ut_order,
+        "Date vs Location (Up)",
+        selected_trains_d1,
+        rainfall_df,
+        show_rainfall_overlay,
     )
     st.plotly_chart(fig1, use_container_width=True)
 
@@ -148,23 +172,39 @@ if show_down and show_up:
     with col1:
         st.subheader("Down Direction")
         fig2_dt = create_date_train_scatter(
-            df_dt, "Date vs Train (Down)", selected_trains_d2, rainfall_df
+            df_dt,
+            "Date vs Train (Down)",
+            selected_trains_d2,
+            rainfall_df,
+            show_rainfall_overlay,
         )
         st.plotly_chart(fig2_dt, use_container_width=True)
     with col2:
         st.subheader("Up Direction")
         fig2_ut = create_date_train_scatter(
-            df_ut, "Date vs Train (Up)", selected_trains_d2, rainfall_df
+            df_ut,
+            "Date vs Train (Up)",
+            selected_trains_d2,
+            rainfall_df,
+            show_rainfall_overlay,
         )
         st.plotly_chart(fig2_ut, use_container_width=True)
 elif show_down:
     fig2 = create_date_train_scatter(
-        df_dt, "Date vs Train (Down)", selected_trains_d2, rainfall_df
+        df_dt,
+        "Date vs Train (Down)",
+        selected_trains_d2,
+        rainfall_df,
+        show_rainfall_overlay,
     )
     st.plotly_chart(fig2, use_container_width=True)
 elif show_up:
     fig2 = create_date_train_scatter(
-        df_ut, "Date vs Train (Up)", selected_trains_d2, rainfall_df
+        df_ut,
+        "Date vs Train (Up)",
+        selected_trains_d2,
+        rainfall_df,
+        show_rainfall_overlay,
     )
     st.plotly_chart(fig2, use_container_width=True)
 
@@ -329,6 +369,56 @@ elif show_up:
         df_ut, ut_order, "Location vs Time of Day (Up)"
     )
     st.plotly_chart(fig6c, use_container_width=True)
+
+st.subheader("D. Train vs Rainfall")
+if show_down and show_up:
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("**Down Direction**")
+        fig6d_dt = create_heatmap_train_rainfall(
+            df_dt, rainfall_df, "Train vs Rainfall (Down)"
+        )
+        st.plotly_chart(fig6d_dt, use_container_width=True)
+    with col2:
+        st.markdown("**Up Direction**")
+        fig6d_ut = create_heatmap_train_rainfall(
+            df_ut, rainfall_df, "Train vs Rainfall (Up)"
+        )
+        st.plotly_chart(fig6d_ut, use_container_width=True)
+elif show_down:
+    fig6d = create_heatmap_train_rainfall(
+        df_dt, rainfall_df, "Train vs Rainfall (Down)"
+    )
+    st.plotly_chart(fig6d, use_container_width=True)
+elif show_up:
+    fig6d = create_heatmap_train_rainfall(df_ut, rainfall_df, "Train vs Rainfall (Up)")
+    st.plotly_chart(fig6d, use_container_width=True)
+
+st.subheader("E. Location vs Rainfall")
+if show_down and show_up:
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("**Down Direction**")
+        fig6e_dt = create_heatmap_location_rainfall(
+            df_dt, dt_order, rainfall_df, "Location vs Rainfall (Down)"
+        )
+        st.plotly_chart(fig6e_dt, use_container_width=True)
+    with col2:
+        st.markdown("**Up Direction**")
+        fig6e_ut = create_heatmap_location_rainfall(
+            df_ut, ut_order, rainfall_df, "Location vs Rainfall (Up)"
+        )
+        st.plotly_chart(fig6e_ut, use_container_width=True)
+elif show_down:
+    fig6e = create_heatmap_location_rainfall(
+        df_dt, dt_order, rainfall_df, "Location vs Rainfall (Down)"
+    )
+    st.plotly_chart(fig6e, use_container_width=True)
+elif show_up:
+    fig6e = create_heatmap_location_rainfall(
+        df_ut, ut_order, rainfall_df, "Location vs Rainfall (Up)"
+    )
+    st.plotly_chart(fig6e, use_container_width=True)
 
 st.divider()
 
