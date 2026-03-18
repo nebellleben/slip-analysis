@@ -112,6 +112,9 @@ df, dt_order, ut_order, id_mapping = process_data(
 
 st.sidebar.metric("Total Records", len(df))
 
+df_dt = df[df["Direction"].isin(["DT", "BOTH"])]
+df_ut = df[df["Direction"].isin(["UT", "BOTH"])]
+
 st.header("Dashboard 1: Date vs Location")
 show_all_trains = st.checkbox("Show all trains", value=True, key="d1_all_trains")
 
@@ -128,9 +131,6 @@ if not show_all_trains:
 if show_down and show_up:
     col1, col2 = st.columns(2)
 
-    df_dt = df[df["Direction"].isin(["DT", "BOTH"])]
-    df_ut = df[df["Direction"].isin(["UT", "BOTH"])]
-
     with col1:
         st.subheader("Down Direction")
         fig1_dt = create_date_location_scatter(
@@ -145,20 +145,23 @@ if show_down and show_up:
         )
         st.plotly_chart(fig1_ut, use_container_width=True)
 elif show_down:
-    df_dt = df[df["Direction"].isin(["DT", "BOTH"])]
     fig1 = create_date_location_scatter(
         df_dt, dt_order, "Date vs Location (Down)", selected_trains_d1
     )
     st.plotly_chart(fig1, use_container_width=True)
 elif show_up:
-    df_ut = df[df["Direction"].isin(["UT", "BOTH"])]
     fig1 = create_date_location_scatter(
         df_ut, ut_order, "Date vs Location (Up)", selected_trains_d1
     )
-show_all_trains = st.checkbox("Show all trains", value=True, key="d2_all_trains")
+    st.plotly_chart(fig1, use_container_width=True)
+
+st.divider()
+
+st.header("Dashboard 2: Date vs Train")
+show_all_trains_d2 = st.checkbox("Show all trains", value=True, key="d2_all_trains")
 
 selected_trains_d2 = None
-if not show_all_trains:
+if not show_all_trains_d2:
     all_trains = sorted(df["Display_ID"].unique())
     selected_trains_d2 = st.multiselect(
         "Select trains",
@@ -173,23 +176,21 @@ if show_down and show_up:
     with col1:
         st.subheader("Down Direction")
         fig1b_dt = create_date_train_scatter(
-            df_dt, "Date vs Train (Down)", selected_trains_d1b
+            df_dt, "Date vs Train (Down)", selected_trains_d2
         )
         st.plotly_chart(fig1b_dt, use_container_width=True)
 
     with col2:
         st.subheader("Up Direction")
         fig1b_ut = create_date_train_scatter(
-            df_ut, "Date vs Train (Up)", selected_trains_d1b
+            df_ut, "Date vs Train (Up)", selected_trains_d2
         )
         st.plotly_chart(fig1b_ut, use_container_width=True)
 elif show_down:
-    fig1b = create_date_train_scatter(
-        df_dt, "Date vs Train (Down)", selected_trains_d1b
-    )
+    fig1b = create_date_train_scatter(df_dt, "Date vs Train (Down)", selected_trains_d2)
     st.plotly_chart(fig1b, use_container_width=True)
 elif show_up:
-    fig1b = create_date_train_scatter(df_ut, "Date vs Train (Up)", selected_trains_d1b)
+    fig1b = create_date_train_scatter(df_ut, "Date vs Train (Up)", selected_trains_d2)
     st.plotly_chart(fig1b, use_container_width=True)
 
 st.divider()
