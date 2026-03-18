@@ -51,10 +51,29 @@ def load_train_id_mapping(
 def load_rainfall_data(
     file_path: str = "resources/daily_HKO_RF_ALL.csv",
 ) -> pd.DataFrame:
-    df = pd.read_csv(file_path, skiprows=2)
-    df.columns = ["Year", "Month", "Day", "Value", "Completeness"]
-    df["Date"] = pd.to_datetime(
-        {"year": df["Year"], "month": df["Month"], "day": df["Day"]}
+    df = pd.read_csv(file_path, skiprows=2, encoding="utf-8-sig")
+    df = df.rename(
+        columns={
+            "年/Year": "Year",
+            "月/Month": "Month",
+            "日/Day": "Day",
+            "數值/Value": "Value",
+            "數據完整性/data Completeness": "Completeness",
+        }
     )
+    df["Year"] = pd.to_numeric(df["Year"], errors="coerce")
+    df["Month"] = pd.to_numeric(df["Month"], errors="coerce")
+    df["Day"] = pd.to_numeric(df["Day"], errors="coerce")
+    df = df.dropna(subset=["Year", "Month", "Day"])
+    df["Date"] = pd.to_datetime(
+        df["Year"].astype(int).astype(str)
+        + "-"
+        + df["Month"].astype(int).astype(str)
+        + "-"
+        + df["Day"].astype(int).astype(str),
+        format="mixed",
+        errors="coerce",
+    )
+    df = df.dropna(subset=["Date"])
     df["Rainfall"] = pd.to_numeric(df["Value"], errors="coerce").fillna(0)
     return df[["Date", "Rainfall"]]
