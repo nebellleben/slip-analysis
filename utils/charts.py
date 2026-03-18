@@ -17,7 +17,10 @@ def _add_rainfall_background(
     if rainfall_data is None or rainfall_data.empty:
         return
 
-    unique_dates = df["Date"].unique()
+    unique_dates = sorted(df["Date"].unique())
+    if len(unique_dates) == 0:
+        return
+
     max_rainfall = rainfall_data["Rainfall"].max()
     if max_rainfall == 0:
         max_rainfall = 1
@@ -34,7 +37,7 @@ def _add_rainfall_background(
         else:
             rainfall = 0
 
-        alpha = min(0.7, rainfall / max_rainfall * 0.7 + 0.05)
+        alpha = min(0.7, rainfall / max_rainfall * 0.65 + 0.05)
 
         fig.add_shape(
             type="rect",
