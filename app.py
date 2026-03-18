@@ -348,3 +348,129 @@ elif show_up:
         df_ut, ut_order, "Location vs Time of Day (Up)"
     )
     st.plotly_chart(fig6c, use_container_width=True)
+
+st.divider()
+
+st.header("Dashboard 7: Slip Records Table")
+
+col_filter1, col_filter2 = st.columns(2)
+
+with col_filter1:
+    st.subheader("Filter by Location")
+    all_locations = sorted(df["Position"].unique())
+    selected_locations = st.multiselect(
+        "Select locations",
+        options=all_locations,
+        default=[],
+        key="table_locations",
+    )
+
+with col_filter2:
+    st.subheader(f"Filter by {id_type}")
+    all_ids = sorted(df["Display_ID"].unique(), key=lambda x: (len(str(x)), str(x)))
+    selected_ids = st.multiselect(
+        f"Select {id_type}",
+        options=all_ids,
+        default=[],
+        key="table_ids",
+    )
+
+table_df = df.copy()
+if selected_locations:
+    table_df = table_df[table_df["Position"].isin(selected_locations)]
+if selected_ids:
+    table_df = table_df[table_df["Display_ID"].isin(selected_ids)]
+
+display_columns = [
+    "Logger Datetime",
+    "Server Datetime",
+    "Display_ID",
+    "VOBC Status",
+    "VOBC No.",
+    "Cab No",
+    "OM",
+    "Alarm",
+    "Position",
+    "Pos",
+    "Detail",
+    "Alarm Level",
+]
+
+st.dataframe(
+    table_df[display_columns],
+    use_container_width=True,
+    hide_index=True,
+    column_config={
+        "Logger Datetime": st.column_config.DatetimeColumn(
+            "Logger Datetime", format="YYYY-MM-DD HH:mm:ss"
+        ),
+        "Server Datetime": st.column_config.DatetimeColumn(
+            "Server Datetime", format="YYYY-MM-DD HH:mm:ss"
+        ),
+    },
+)
+
+st.caption(f"Showing {len(table_df)} records (filtered from {len(df)} total)")
+
+st.divider()
+
+st.header("Dashboard 7: Slip Records Table")
+
+table_col1, table_col2 = st.columns(2)
+
+with table_col1:
+    all_locations = sorted(df["Position"].unique())
+    selected_locations = st.multiselect(
+        "Filter by Location",
+        options=all_locations,
+        default=[],
+        key="table_locations",
+    )
+
+with table_col2:
+    all_ids = sorted(df["Display_ID"].unique(), key=lambda x: (len(str(x)), str(x)))
+    selected_ids = st.multiselect(
+        f"Filter by {id_type}",
+        options=all_ids,
+        default=[],
+        key="table_ids",
+    )
+
+table_df = df.copy()
+if selected_locations:
+    table_df = table_df[table_df["Position"].isin(selected_locations)]
+if selected_ids:
+    table_df = table_df[table_df["Display_ID"].isin(selected_ids)]
+
+display_columns = [
+    "Logger Datetime",
+    "Server Datetime",
+    "Display_ID",
+    "Position",
+    "Pos",
+    "VOBC Status",
+    "Detail",
+    "Alarm Level",
+]
+
+table_df_display = table_df[display_columns].copy()
+table_df_display = table_df_display.rename(
+    columns={"Display_ID": id_type, "Position": "Location (VCC/LOOP)"}
+)
+table_df_display = table_df_display.sort_values("Logger Datetime", ascending=False)
+
+st.dataframe(
+    table_df_display,
+    use_container_width=True,
+    hide_index=True,
+    column_config={
+        "Logger Datetime": st.column_config.DatetimeColumn(
+            "Logger Datetime", format="YYYY-MM-DD HH:mm:ss"
+        ),
+        "Server Datetime": st.column_config.DatetimeColumn(
+            "Server Datetime", format="YYYY-MM-DD HH:mm:ss"
+        ),
+    },
+)
+
+st.caption(f"Showing {len(table_df_display)} records (filtered from {len(df)} total)")

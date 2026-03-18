@@ -165,24 +165,24 @@ def create_train_bar_chart(
 
     df = df.copy()
 
-    train_counts = (
-        df.groupby("Display_ID")
-        .agg(Count=("Display_ID", "size"), Avg_Date=("Date", "first"))
-        .reset_index()
+    train_counts = df.groupby(["Display_ID", "Date"]).size().reset_index(name="Count")
+    train_totals = (
+        train_counts.groupby("Display_ID")["Count"].sum().sort_values(ascending=False)
     )
-    train_counts = train_counts.sort_values("Count", ascending=False)
+    train_order = train_totals.index.tolist()
 
     fig = px.bar(
         train_counts,
         x="Display_ID",
         y="Count",
-        color="Avg_Date",
+        color="Date",
         title=title,
         labels={
             "Display_ID": "Train ID",
             "Count": "Number of Slips",
-            "Avg_Date": "Date",
+            "Date": "Date",
         },
+        category_orders={"Display_ID": train_order},
         color_continuous_scale="Greys_r",
     )
 
@@ -191,6 +191,7 @@ def create_train_bar_chart(
         height=500,
         xaxis_title="Train ID",
         yaxis_title="Number of Slip Occurrences",
+        barmode="stack",
         coloraxis_colorbar=dict(title="Date (darker=newer)"),
     )
 
@@ -205,20 +206,20 @@ def create_location_bar_chart(
 
     df = df.copy()
 
-    location_counts = (
-        df.groupby("Position")
-        .agg(Count=("Position", "size"), Avg_Date=("Date", "first"))
-        .reset_index()
+    location_counts = df.groupby(["Position", "Date"]).size().reset_index(name="Count")
+    location_totals = (
+        location_counts.groupby("Position")["Count"].sum().sort_values(ascending=False)
     )
-    location_counts = location_counts.sort_values("Count", ascending=False)
+    location_order = location_totals.index.tolist()
 
     fig = px.bar(
         location_counts,
         x="Position",
         y="Count",
-        color="Avg_Date",
+        color="Date",
         title=title,
-        labels={"Position": "Location", "Count": "Number of Slips", "Avg_Date": "Date"},
+        labels={"Position": "Location", "Count": "Number of Slips", "Date": "Date"},
+        category_orders={"Position": location_order},
         color_continuous_scale="Greys_r",
     )
 
@@ -227,6 +228,7 @@ def create_location_bar_chart(
         height=500,
         xaxis_title="Location (VCC/LOOP)",
         yaxis_title="Number of Slip Occurrences",
+        barmode="stack",
         coloraxis_colorbar=dict(title="Date (darker=newer)"),
     )
 

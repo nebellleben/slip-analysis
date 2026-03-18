@@ -99,22 +99,42 @@ An interactive Streamlit dashboard for analyzing train slip occurrences with fil
 
 ### Dashboard 4: Slip Count by Train (Bar Chart)
 - **Y-axis**: Number of slip occurrences
-- **X-axis**: Train ID (sorted in descending order by count)
-- **Hue**: Date of occurrence (darker = newer)
-
-- **Note**: This is a renumbered dashboard
+- **X-axis**: Train ID (sorted in descending order by total count)
+- **Visualization**: Stacked bar chart where each bar is stacked by date
+- **Hue**: Each segment represents a different date (darker = newer)
 
 ### Dashboard 5: Slip Count by Location (Bar Chart)
 - **Y-axis**: Number of slip occurrences
 - **X-axis**: Location (VCC/LOOP combination, sorted descending by count)
 - **Note**: Does NOT need to follow loop_sequence order
-- **Hue**: Date of occurrence (darker = more recent)
+- **Visualization**: Stacked bar chart where each bar is stacked by date
+- **Hue**: Each segment represents a different date (darker = newer)
 
 ### Dashboard 6: Correlation Heatmaps
 Three separate heatmap charts showing slip correlation:
 - **A. Train ID vs Location**
 - **B. Train ID vs Time of Day**
 - **C. Location vs Time of Day**
+
+### Dashboard 7: Slip Records Table
+- **Purpose**: View individual slip records with filtering capabilities
+- **Filters**:
+  - Location (VCC/LOOP): Multi-select dropdown
+  - Train/Cab/VOBC ID: Multi-select dropdown (respects selected ID type)
+- **Columns displayed**:
+  - Logger Datetime
+  - Server Datetime
+  - Display ID (based on selected ID type)
+  - VOBC Status
+  - VOBC No.
+  - Cab No
+  - OM
+  - Alarm
+  - Position
+  - Pos
+  - Detail
+  - Alarm Level
+- **Features**: Sortable columns, downloadable as CSV
 
 ---
 
