@@ -83,7 +83,7 @@ An interactive Streamlit dashboard for analyzing train slip occurrences with fil
 - **Y-axis**: Date (older to newer, bottom to top)
 - **X-axis**: Train ID
 - **Visualization**: Dot plot where size indicates number of occurrences
-- **Hue**: Date shown as color (darker = older)
+- **Hue**: Date shown as color (darker = newer)
 - **Filter**: Checkbox to toggle between:
   - All trains (default)
   - Individual trains (multi-select dropdown)
@@ -92,7 +92,7 @@ An interactive Streamlit dashboard for analyzing train slip occurrences with fil
 - **Y-axis**: Train ID
 - **X-axis**: Location (sorted by loop_sequence order)
 - **Visualization**: Dot plot showing slip occurrences
-- **Third dimension**: Date shown as hue (darker = older)
+- **Third dimension**: Date shown as hue (darker = newer)
 - **Sorting option**: Checkbox to sort trains by:
   - Frequency of slips (ascending order)
   - Train ID number (default)
@@ -100,7 +100,7 @@ An interactive Streamlit dashboard for analyzing train slip occurrences with fil
 ### Dashboard 4: Slip Count by Train (Bar Chart)
 - **Y-axis**: Number of slip occurrences
 - **X-axis**: Train ID (sorted in descending order by count)
-- **Hue**: Date of occurrence (darker = older)
+- **Hue**: Date of occurrence (darker = newer)
 
 - **Note**: This is a renumbered dashboard
 

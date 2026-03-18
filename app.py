@@ -175,29 +175,29 @@ if show_down and show_up:
 
     with col1:
         st.subheader("Down Direction")
-        fig1b_dt = create_date_train_scatter(
+        fig2_dt = create_date_train_scatter(
             df_dt, "Date vs Train (Down)", selected_trains_d2
         )
-        st.plotly_chart(fig1b_dt, use_container_width=True)
+        st.plotly_chart(fig2_dt, use_container_width=True)
 
     with col2:
         st.subheader("Up Direction")
-        fig1b_ut = create_date_train_scatter(
+        fig2_ut = create_date_train_scatter(
             df_ut, "Date vs Train (Up)", selected_trains_d2
         )
-        st.plotly_chart(fig1b_ut, use_container_width=True)
+        st.plotly_chart(fig2_ut, use_container_width=True)
 elif show_down:
-    fig1b = create_date_train_scatter(df_dt, "Date vs Train (Down)", selected_trains_d2)
-    st.plotly_chart(fig1b, use_container_width=True)
+    fig2 = create_date_train_scatter(df_dt, "Date vs Train (Down)", selected_trains_d2)
+    st.plotly_chart(fig2, use_container_width=True)
 elif show_up:
-    fig1b = create_date_train_scatter(df_ut, "Date vs Train (Up)", selected_trains_d2)
-    st.plotly_chart(fig1b, use_container_width=True)
+    fig2 = create_date_train_scatter(df_ut, "Date vs Train (Up)", selected_trains_d2)
+    st.plotly_chart(fig2, use_container_width=True)
 
 st.divider()
 
 st.header("Dashboard 3: Train vs Location")
 sort_by_freq = st.checkbox(
-    "Sort trains by slip frequency (ascending)", value=False, key="d2_sort_freq"
+    "Sort trains by slip frequency (ascending)", value=False, key="d3_sort_freq"
 )
 
 if show_down and show_up:
@@ -205,27 +205,27 @@ if show_down and show_up:
 
     with col1:
         st.subheader("Down Direction")
-        fig2_dt = create_train_location_scatter(
+        fig3_dt = create_train_location_scatter(
             df_dt, dt_order, "Train vs Location (Down)", sort_by_freq
         )
-        st.plotly_chart(fig2_dt, use_container_width=True)
+        st.plotly_chart(fig3_dt, use_container_width=True)
 
     with col2:
         st.subheader("Up Direction")
-        fig2_ut = create_train_location_scatter(
+        fig3_ut = create_train_location_scatter(
             df_ut, ut_order, "Train vs Location (Up)", sort_by_freq
         )
-        st.plotly_chart(fig2_ut, use_container_width=True)
+        st.plotly_chart(fig3_ut, use_container_width=True)
 elif show_down:
-    fig2 = create_train_location_scatter(
+    fig3 = create_train_location_scatter(
         df_dt, dt_order, "Train vs Location (Down)", sort_by_freq
     )
-    st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(fig3, use_container_width=True)
 elif show_up:
-    fig2 = create_train_location_scatter(
+    fig3 = create_train_location_scatter(
         df_ut, ut_order, "Train vs Location (Up)", sort_by_freq
     )
-    st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(fig3, use_container_width=True)
 
 st.divider()
 
@@ -236,19 +236,19 @@ if show_down and show_up:
 
     with col1:
         st.subheader("Down Direction")
-        fig3_dt = create_train_bar_chart(df_dt, "Slip Count by Train (Down)")
-        st.plotly_chart(fig3_dt, use_container_width=True)
+        fig4_dt = create_train_bar_chart(df_dt, "Slip Count by Train (Down)")
+        st.plotly_chart(fig4_dt, use_container_width=True)
 
     with col2:
         st.subheader("Up Direction")
-        fig3_ut = create_train_bar_chart(df_ut, "Slip Count by Train (Up)")
-        st.plotly_chart(fig3_ut, use_container_width=True)
+        fig4_ut = create_train_bar_chart(df_ut, "Slip Count by Train (Up)")
+        st.plotly_chart(fig4_ut, use_container_width=True)
 elif show_down:
-    fig3 = create_train_bar_chart(df_dt, "Slip Count by Train (Down)")
-    st.plotly_chart(fig3, use_container_width=True)
+    fig4 = create_train_bar_chart(df_dt, "Slip Count by Train (Down)")
+    st.plotly_chart(fig4, use_container_width=True)
 elif show_up:
-    fig3 = create_train_bar_chart(df_ut, "Slip Count by Train (Up)")
-    st.plotly_chart(fig3, use_container_width=True)
+    fig4 = create_train_bar_chart(df_ut, "Slip Count by Train (Up)")
+    st.plotly_chart(fig4, use_container_width=True)
 
 st.divider()
 
@@ -259,19 +259,19 @@ if show_down and show_up:
 
     with col1:
         st.subheader("Down Direction")
-        fig4_dt = create_location_bar_chart(df_dt, "Slip Count by Location (Down)")
-        st.plotly_chart(fig4_dt, use_container_width=True)
+        fig5_dt = create_location_bar_chart(df_dt, "Slip Count by Location (Down)")
+        st.plotly_chart(fig5_dt, use_container_width=True)
 
     with col2:
         st.subheader("Up Direction")
-        fig4_ut = create_location_bar_chart(df_ut, "Slip Count by Location (Up)")
-        st.plotly_chart(fig4_ut, use_container_width=True)
+        fig5_ut = create_location_bar_chart(df_ut, "Slip Count by Location (Up)")
+        st.plotly_chart(fig5_ut, use_container_width=True)
 elif show_down:
-    fig4 = create_location_bar_chart(df_dt, "Slip Count by Location (Down)")
-    st.plotly_chart(fig4, use_container_width=True)
+    fig5 = create_location_bar_chart(df_dt, "Slip Count by Location (Down)")
+    st.plotly_chart(fig5, use_container_width=True)
 elif show_up:
-    fig4 = create_location_bar_chart(df_ut, "Slip Count by Location (Up)")
-    st.plotly_chart(fig4, use_container_width=True)
+    fig5 = create_location_bar_chart(df_ut, "Slip Count by Location (Up)")
+    st.plotly_chart(fig5, use_container_width=True)
 
 st.divider()
 
@@ -283,23 +283,23 @@ if show_down and show_up:
 
     with col1:
         st.markdown("**Down Direction**")
-        fig5a_dt = create_heatmap_train_location(
+        fig6a_dt = create_heatmap_train_location(
             df_dt, dt_order, "Train vs Location (Down)"
         )
-        st.plotly_chart(fig5a_dt, use_container_width=True)
+        st.plotly_chart(fig6a_dt, use_container_width=True)
 
     with col2:
         st.markdown("**Up Direction**")
-        fig5a_ut = create_heatmap_train_location(
+        fig6a_ut = create_heatmap_train_location(
             df_ut, ut_order, "Train vs Location (Up)"
         )
-        st.plotly_chart(fig5a_ut, use_container_width=True)
+        st.plotly_chart(fig6a_ut, use_container_width=True)
 elif show_down:
-    fig5a = create_heatmap_train_location(df_dt, dt_order, "Train vs Location (Down)")
-    st.plotly_chart(fig5a, use_container_width=True)
+    fig6a = create_heatmap_train_location(df_dt, dt_order, "Train vs Location (Down)")
+    st.plotly_chart(fig6a, use_container_width=True)
 elif show_up:
-    fig5a = create_heatmap_train_location(df_ut, ut_order, "Train vs Location (Up)")
-    st.plotly_chart(fig5a, use_container_width=True)
+    fig6a = create_heatmap_train_location(df_ut, ut_order, "Train vs Location (Up)")
+    st.plotly_chart(fig6a, use_container_width=True)
 
 st.subheader("B. Train vs Time of Day")
 if show_down and show_up:
@@ -307,19 +307,19 @@ if show_down and show_up:
 
     with col1:
         st.markdown("**Down Direction**")
-        fig5b_dt = create_heatmap_train_time(df_dt, "Train vs Time of Day (Down)")
-        st.plotly_chart(fig5b_dt, use_container_width=True)
+        fig6b_dt = create_heatmap_train_time(df_dt, "Train vs Time of Day (Down)")
+        st.plotly_chart(fig6b_dt, use_container_width=True)
 
     with col2:
         st.markdown("**Up Direction**")
-        fig5b_ut = create_heatmap_train_time(df_ut, "Train vs Time of Day (Up)")
-        st.plotly_chart(fig5b_ut, use_container_width=True)
+        fig6b_ut = create_heatmap_train_time(df_ut, "Train vs Time of Day (Up)")
+        st.plotly_chart(fig6b_ut, use_container_width=True)
 elif show_down:
-    fig5b = create_heatmap_train_time(df_dt, "Train vs Time of Day (Down)")
-    st.plotly_chart(fig5b, use_container_width=True)
+    fig6b = create_heatmap_train_time(df_dt, "Train vs Time of Day (Down)")
+    st.plotly_chart(fig6b, use_container_width=True)
 elif show_up:
-    fig5b = create_heatmap_train_time(df_ut, "Train vs Time of Day (Up)")
-    st.plotly_chart(fig5b, use_container_width=True)
+    fig6b = create_heatmap_train_time(df_ut, "Train vs Time of Day (Up)")
+    st.plotly_chart(fig6b, use_container_width=True)
 
 st.subheader("C. Location vs Time of Day")
 if show_down and show_up:
@@ -327,24 +327,24 @@ if show_down and show_up:
 
     with col1:
         st.markdown("**Down Direction**")
-        fig5c_dt = create_heatmap_location_time(
+        fig6c_dt = create_heatmap_location_time(
             df_dt, dt_order, "Location vs Time of Day (Down)"
         )
-        st.plotly_chart(fig5c_dt, use_container_width=True)
+        st.plotly_chart(fig6c_dt, use_container_width=True)
 
     with col2:
         st.markdown("**Up Direction**")
-        fig5c_ut = create_heatmap_location_time(
+        fig6c_ut = create_heatmap_location_time(
             df_ut, ut_order, "Location vs Time of Day (Up)"
         )
-        st.plotly_chart(fig5c_ut, use_container_width=True)
+        st.plotly_chart(fig6c_ut, use_container_width=True)
 elif show_down:
-    fig5c = create_heatmap_location_time(
+    fig6c = create_heatmap_location_time(
         df_dt, dt_order, "Location vs Time of Day (Down)"
     )
-    st.plotly_chart(fig5c, use_container_width=True)
+    st.plotly_chart(fig6c, use_container_width=True)
 elif show_up:
-    fig5c = create_heatmap_location_time(
+    fig6c = create_heatmap_location_time(
         df_ut, ut_order, "Location vs Time of Day (Up)"
     )
-    st.plotly_chart(fig5c, use_container_width=True)
+    st.plotly_chart(fig6c, use_container_width=True)

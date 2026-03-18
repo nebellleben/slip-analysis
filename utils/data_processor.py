@@ -179,11 +179,13 @@ def get_date_normalized(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     if "Date" not in df.columns:
         df["Date"] = df["Logger Datetime"].dt.date
-    date_range = df["Date"].max() - df["Date"].min()
-    if date_range.days > 0:
+    date_min = df["Date"].min()
+    date_max = df["Date"].max()
+    date_range_days = (date_max - date_min).days
+    if date_range_days > 0:
         df["Date_Numeric"] = (
-            pd.to_datetime(df["Date"]) - pd.to_datetime(df["Date"].min())
-        ).dt.days / date_range.days
+            pd.to_datetime(df["Date"]) - pd.to_datetime(date_min)
+        ).dt.days / date_range_days
     else:
-        df["Date_Numeric"] = 1.0
+        df["Date_Numeric"] = 0.0
     return df

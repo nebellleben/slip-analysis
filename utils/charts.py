@@ -69,12 +69,8 @@ def create_date_train_scatter(
     if selected_trains:
         df = df[df["Display_ID"].isin(selected_trains)]
 
-    df = get_date_normalized(df)
-
     occurrence_counts = (
-        df.groupby(["Date", "Display_ID"])
-        .agg(Count=("Display_ID", "size"), Avg_Date=("Date_Numeric", "mean"))
-        .reset_index()
+        df.groupby(["Date", "Display_ID"]).size().reset_index(name="Count")
     )
 
     train_order = sorted(
@@ -87,17 +83,15 @@ def create_date_train_scatter(
         x="Display_ID",
         y="Date",
         size="Count",
-        color="Avg_Date",
+        color="Count",
         title=title,
         labels={
             "Display_ID": "Train ID",
             "Date": "Date",
             "Count": "Occurrences",
-            "Avg_Date": "Date",
         },
         category_orders={"Display_ID": train_order},
         color_continuous_scale="Greys_r",
-        range_color=[0.9, 0.3],
     )
 
     fig.update_layout(
@@ -105,7 +99,7 @@ def create_date_train_scatter(
         height=500,
         xaxis_title="Train ID",
         yaxis_title="Date",
-        coloraxis_colorbar=dict(title="Date (darker=older)"),
+        coloraxis_colorbar=dict(title="Slip Count"),
     )
 
     return fig
@@ -124,8 +118,6 @@ def create_train_location_scatter(
     df["Location_Order"] = df["Position"].map(location_order)
     df = df.dropna(subset=["Location_Order"])
 
-    df = get_date_normalized(df)
-
     if sort_by_frequency:
         train_counts = df.groupby("Display_ID").size().sort_values(ascending=True)
         train_order = train_counts.index.tolist()
@@ -138,12 +130,12 @@ def create_train_location_scatter(
         df,
         x="Position",
         y="Display_ID",
-        color="Date_Numeric",
+        color="Date",
         title=title,
         labels={
             "Position": "Location",
             "Display_ID": "Train",
-            "Date_Numeric": "Date",
+            "Date": "Date",
         },
         category_orders={
             "Position": [
@@ -152,7 +144,6 @@ def create_train_location_scatter(
             "Display_ID": train_order,
         },
         color_continuous_scale="Greys_r",
-        range_color=[0.9, 0.3],
     )
 
     fig.update_layout(
@@ -160,7 +151,7 @@ def create_train_location_scatter(
         height=max(500, len(train_order) * 15),
         xaxis_title="Location (Sequential Order)",
         yaxis_title="Train ID",
-        coloraxis_colorbar=dict(title="Date (darker=older)"),
+        coloraxis_colorbar=dict(title="Date (darker=newer)"),
     )
 
     return fig
@@ -173,36 +164,34 @@ def create_train_bar_chart(
         return go.Figure()
 
     df = df.copy()
-    df = get_date_normalized(df)
 
     train_counts = (
         df.groupby("Display_ID")
-        .agg(Count=("Display_ID", "size"), Avg_Date=("Date_Numeric", "mean"))
+        .agg(Count=("Display_ID", "size"), Avg_Date=("Date", "first"))
         .reset_index()
     )
     train_counts = train_counts.sort_values("Count", ascending=False)
 
     fig = px.bar(
-        location_counts,
-        x="Position",
+        train_counts,
+        x="Display_ID",
         y="Count",
         color="Avg_Date",
         title=title,
         labels={
-            "Position": "Location",
+            "Display_ID": "Train ID",
             "Count": "Number of Slips",
             "Avg_Date": "Date",
         },
         color_continuous_scale="Greys_r",
-        range_color=[0.9, 0.3],
     )
 
     fig.update_layout(
         xaxis_tickangle=-45,
         height=500,
-        xaxis_title="Location (VCC/LOOP)",
+        xaxis_title="Train ID",
         yaxis_title="Number of Slip Occurrences",
-        coloraxis_colorbar=dict(title="Date (darker=older)"),
+        coloraxis_colorbar=dict(title="Date (darker=newer)"),
     )
 
     return fig
@@ -215,11 +204,10 @@ def create_location_bar_chart(
         return go.Figure()
 
     df = df.copy()
-    df = get_date_normalized(df)
 
     location_counts = (
         df.groupby("Position")
-        .agg(Count=("Position", "size"), Avg_Date=("Date_Numeric", "mean"))
+        .agg(Count=("Position", "size"), Avg_Date=("Date", "first"))
         .reset_index()
     )
     location_counts = location_counts.sort_values("Count", ascending=False)
@@ -231,7 +219,7 @@ def create_location_bar_chart(
         color="Avg_Date",
         title=title,
         labels={"Position": "Location", "Count": "Number of Slips", "Avg_Date": "Date"},
-        color_continuous_scale="Greys",
+        color_continuous_scale="Greys_r",
     )
 
     fig.update_layout(
@@ -239,7 +227,7 @@ def create_location_bar_chart(
         height=500,
         xaxis_title="Location (VCC/LOOP)",
         yaxis_title="Number of Slip Occurrences",
-        coloraxis_colorbar=dict(title="Date (darker=recent)"),
+        coloraxis_colorbar=dict(title="Date (darker=newer)"),
     )
 
     return fig
