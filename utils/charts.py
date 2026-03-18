@@ -291,10 +291,9 @@ def create_train_location_scatter(
     )
 
     n_ticks = min(10, len(unique_dates))
-    tick_vals = [i / (n_ticks - 1) for i in range(n_ticks)] if n_ticks > 1 else [0]
+    tick_vals = [1 - i / (n_ticks - 1) for i in range(n_ticks)] if n_ticks > 1 else [0]
     tick_labels = [
-        str(unique_dates[len(unique_dates) - 1 - int(v * (len(unique_dates) - 1))])
-        for v in tick_vals
+        str(unique_dates[int(v * (len(unique_dates) - 1))]) for v in tick_vals
     ]
 
     fig.update_layout(
@@ -352,10 +351,9 @@ def create_train_bar_chart(
         )
 
     n_ticks = min(10, len(unique_dates))
-    tick_vals = [i / (n_ticks - 1) for i in range(n_ticks)] if n_ticks > 1 else [0]
+    tick_vals = [1 - i / (n_ticks - 1) for i in range(n_ticks)] if n_ticks > 1 else [0]
     tick_labels = [
-        str(unique_dates[len(unique_dates) - 1 - int(v * (len(unique_dates) - 1))])
-        for v in tick_vals
+        str(unique_dates[int(v * (len(unique_dates) - 1))]) for v in tick_vals
     ]
 
     fig.add_trace(
@@ -434,10 +432,9 @@ def create_location_bar_chart(
         )
 
     n_ticks = min(10, len(unique_dates))
-    tick_vals = [i / (n_ticks - 1) for i in range(n_ticks)] if n_ticks > 1 else [0]
+    tick_vals = [1 - i / (n_ticks - 1) for i in range(n_ticks)] if n_ticks > 1 else [0]
     tick_labels = [
-        str(unique_dates[len(unique_dates) - 1 - int(v * (len(unique_dates) - 1))])
-        for v in tick_vals
+        str(unique_dates[int(v * (len(unique_dates) - 1))]) for v in tick_vals
     ]
 
     fig.add_trace(
