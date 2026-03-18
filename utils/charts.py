@@ -80,11 +80,16 @@ def create_date_train_scatter(
         key=lambda x: (len(str(x)), str(x)),
     )
 
+    max_count = occurrence_counts["Count"].max() if len(occurrence_counts) > 0 else 1
+    occurrence_counts["Size_Normalized"] = (
+        occurrence_counts["Count"] / max_count * 15 + 5
+    )
+
     fig = px.scatter(
         occurrence_counts,
         x="Display_ID",
         y="Date",
-        size="Count",
+        size="Size_Normalized",
         title=title,
         labels={
             "Display_ID": "Train ID",
@@ -92,6 +97,15 @@ def create_date_train_scatter(
             "Count": "Occurrences",
         },
         category_orders={"Display_ID": train_order},
+        size_max=20,
+    )
+
+    fig.update_traces(
+        marker=dict(
+            sizemode="diameter",
+            opacity=0.8,
+            line=dict(width=1, color="DarkSlateGrey"),
+        )
     )
 
     fig.update_layout(
