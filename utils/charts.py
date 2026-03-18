@@ -93,10 +93,11 @@ def create_date_train_scatter(
             "Display_ID": "Train ID",
             "Date": "Date",
             "Count": "Occurrences",
-            "Avg_Date": "Date (normalized)",
+            "Avg_Date": "Date",
         },
         category_orders={"Display_ID": train_order},
-        color_continuous_scale="Greys",
+        color_continuous_scale="Greys_r",
+        range_color=[0.9, 0.3],
     )
 
     fig.update_layout(
@@ -104,7 +105,7 @@ def create_date_train_scatter(
         height=500,
         xaxis_title="Train ID",
         yaxis_title="Date",
-        coloraxis_colorbar=dict(title="Date (darker=recent)"),
+        coloraxis_colorbar=dict(title="Date (darker=older)"),
     )
 
     return fig
@@ -142,7 +143,7 @@ def create_train_location_scatter(
         labels={
             "Position": "Location",
             "Display_ID": "Train",
-            "Date_Numeric": "Date (normalized)",
+            "Date_Numeric": "Date",
         },
         category_orders={
             "Position": [
@@ -150,7 +151,8 @@ def create_train_location_scatter(
             ],
             "Display_ID": train_order,
         },
-        color_continuous_scale="Greys",
+        color_continuous_scale="Greys_r",
+        range_color=[0.9, 0.3],
     )
 
     fig.update_layout(
@@ -158,7 +160,7 @@ def create_train_location_scatter(
         height=max(500, len(train_order) * 15),
         xaxis_title="Location (Sequential Order)",
         yaxis_title="Train ID",
-        coloraxis_colorbar=dict(title="Date (darker=recent)"),
+        coloraxis_colorbar=dict(title="Date (darker=older)"),
     )
 
     return fig
@@ -181,25 +183,26 @@ def create_train_bar_chart(
     train_counts = train_counts.sort_values("Count", ascending=False)
 
     fig = px.bar(
-        train_counts,
-        x="Display_ID",
+        location_counts,
+        x="Position",
         y="Count",
         color="Avg_Date",
         title=title,
         labels={
-            "Display_ID": "Train ID",
+            "Position": "Location",
             "Count": "Number of Slips",
             "Avg_Date": "Date",
         },
-        color_continuous_scale="Greys",
+        color_continuous_scale="Greys_r",
+        range_color=[0.9, 0.3],
     )
 
     fig.update_layout(
         xaxis_tickangle=-45,
         height=500,
-        xaxis_title="Train ID",
+        xaxis_title="Location (VCC/LOOP)",
         yaxis_title="Number of Slip Occurrences",
-        coloraxis_colorbar=dict(title="Date (darker=recent)"),
+        coloraxis_colorbar=dict(title="Date (darker=older)"),
     )
 
     return fig
