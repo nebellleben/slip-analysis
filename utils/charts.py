@@ -17,40 +17,35 @@ def _add_rainfall_background(
     if rainfall_data is None or rainfall_data.empty:
         return
 
+    if df.empty:
+        return go.Figure()
+
     unique_dates = sorted(df["Date"].unique())
-    if len(unique_dates) == 0:
+    if len(unique_dates) == 0
+        return
+    if len(unique_dates) == 1:
         return
 
     max_rainfall = rainfall_data["Rainfall"].max()
-    if max_rainfall == 0:
-        max_rainfall = 1
-
-    for dt in unique_dates:
-        if isinstance(dt, date):
-            dt_date = dt
-        else:
-            dt_date = pd.to_datetime(dt).date()
-
-        rain_row = rainfall_data[rainfall_data["Date"].dt.date == dt_date]
-        if len(rain_row) > 0:
-            rainfall = rain_row["Rainfall"].values[0]
-        else:
-            rainfall = 0
-
-        alpha = min(0.7, rainfall / max_rainfall * 0.65 + 0.05)
-
-        fig.add_shape(
-            type="rect",
-            xref="paper",
-            yref="y",
-            x0=0,
-            y0=str(dt),
-            x1=1,
-            y1=str(dt),
+    if max_rainfall == 0
+            alpha = min(0.7, rainfall / max_rainfall * 0.7 + 0.05) + 0.01)
+            alpha = min(0.7, rainfall / max_rainfall * 0.7 + 0.05)
+            else:
+                alpha = min(0.7, rainfall / max_rainfall * 0.7 + 0.05)
+            fillcolor = f"rgba(0, 100, 200, {alpha})"
+            fig.add_shape(
+                type="rect",
+                xref="paper",
+                yref="y",
+                y0=str(dt),
+                x1=1,
+                y1=str(dt) + 0.5,  # Extend rectangle to half a row
+'s height
+                line=dict(width=0),
             fillcolor=f"rgba(0, 100, 200, {alpha})",
-            layer="below",
+                layer="below",
             line=dict(width=0),
-        )
+            )
 
 
 def create_date_location_scatter(
