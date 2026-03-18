@@ -1,33 +1,34 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime,import io
 
 from utils.data_loader import (
     load_alarm_data,
     load_alarm_data_from_upload,
     load_loop_sequence,
-    load_train_id_mapping,
+    load_train_id_mapping
 )
 from utils.data_processor import (
     build_location_order_map,
     get_valid_locations,
-    filter_valid_locations,
-    infer_direction,
-    deduplicate_slips,
-    build_id_mapping,
-    convert_id,
-    filter_by_date_range,
-    filter_by_direction,
+    filter_valid_locations
+    infer_direction
+    deduplicate_slips
+    build_id_mapping
+    convert_id
+    filter_by_date_range
+    filter_by_direction
 )
 from utils.charts import (
     create_date_location_scatter,
-    create_date_train_scatter,
-    create_train_location_scatter,
-    create_train_bar_chart,
-    create_location_bar_chart,
-    create_heatmap_train_location,
-    create_heatmap_train_time,
-    create_heatmap_location_time,
+    create_date_train_scatter
+    create_train_location_scatter
+    create_train_bar_chart
+    create_location_bar_chart
+    create_date_bar_chart
+    create_heatmap_train_location
+    create_heatmap_train_time
+    create_heatmap_location_time
 )
 
 st.set_page_config(page_title="Slip Analysis Dashboard", page_icon="🚇", layout="wide")
@@ -40,51 +41,19 @@ def load_data():
     alarm_df = load_alarm_data()
     dt_seq, ut_seq = load_loop_sequence()
     train_mapping = load_train_id_mapping()
-    return alarm_df, dt_seq, ut_seq, train_mapping
+    return alarm_df, dt_seq, ut_seq, train_mapping, date_range
 
 
-@st.cache_data
-def process_data(
-    alarm_df, dt_seq, ut_seq, train_mapping, date_range, show_down, show_up, id_type
-):
-    valid_locations = get_valid_locations(dt_seq, ut_seq)
-    df = filter_valid_locations(alarm_df, valid_locations)
-    df = infer_direction(df, dt_seq, ut_seq)
-    df = deduplicate_slips(df)
+ date_range = df['Date'].max()
+ alarm_df['Date'] = alarm_df['Logger Datetime'].dt.date
 
-    if date_range:
-        df = filter_by_date_range(df, date_range[0], date_range[1])
+min_date = alarm_df['Date'].min()
+max_date
+ alarm_df['Date'] = pd.to_datetime(alarm_df['Date']).max()
+ alarm_df['Date'] =pd.to_datetime(alarm_df['Date'])
 
-    df = filter_by_direction(df, show_down, show_up)
-
-    id_mapping = build_id_mapping(train_mapping)
-    df = convert_id(df, id_type, id_mapping)
-
-    dt_order, ut_order = build_location_order_map(dt_seq, ut_seq)
-
-    return df, dt_order, ut_order, id_mapping
-
-
-with st.spinner("Loading data..."):
-    alarm_df, dt_seq, ut_seq, train_mapping = load_data()
-
-st.sidebar.header("Data Source")
-use_uploaded = st.sidebar.checkbox("Upload custom data file")
-if use_uploaded:
-    uploaded_file = st.sidebar.file_uploader("Upload CSV file", type=["csv"])
-    if uploaded_file:
-        alarm_df = load_alarm_data_from_upload(uploaded_file)
-        st.sidebar.success(f"Loaded: {uploaded_file.name}")
-else:
-    st.sidebar.info("Using default: alarm_message_data_user_5.csv")
-
-st.sidebar.header("Filters")
-
-if "Date" not in alarm_df.columns:
-    alarm_df["Date"] = alarm_df["Logger Datetime"].dt.date
-
-min_date = alarm_df["Date"].min()
-max_date = alarm_df["Date"].max()
+min_date = alarm_df['Date'].min()
+max_date
 
 date_range = st.sidebar.slider(
     "Date Range",
@@ -106,9 +75,18 @@ id_type = st.sidebar.selectbox(
     "ID Type", options=["Train ID", "Cab ID", "VOBC"], index=0
 )
 
-df, dt_order, ut_order, id_mapping = process_data(
-    alarm_df, dt_seq, ut_seq, train_mapping, date_range, show_down, show_up, id_type
-)
+df, dt_order, ut_order = build_location_order_map(dt_seq, ut_seq)
+
+valid_locations = get_valid_locations(dt_seq, ut_seq)
+df = filter_valid_locations(alarm_df, valid_locations)
+df = infer_direction(df, dt_seq, ut_seq)
+df = deduplicate_slips(df)
+
+id_mapping = build_id_mapping(train_mapping)
+
+df = convert_id(df, id_type, id_mapping)
+df_dt = df[df["Direction"].isin(["DT", "BOTH"])]
+df_ut = df[df["Direction"].isin(["UT", "BOTH"])]
 
 st.sidebar.metric("Total Records", len(df))
 
@@ -130,14 +108,12 @@ if not show_all_trains:
 
 if show_down and show_up:
     col1, col2 = st.columns(2)
-
     with col1:
         st.subheader("Down Direction")
         fig1_dt = create_date_location_scatter(
             df_dt, dt_order, "Date vs Location (Down)", selected_trains_d1
         )
         st.plotly_chart(fig1_dt, use_container_width=True)
-
     with col2:
         st.subheader("Up Direction")
         fig1_ut = create_date_location_scatter(
@@ -169,17 +145,14 @@ if not show_all_trains_d2:
         default=all_trains[:5] if len(all_trains) > 5 else all_trains,
         key="d2_trains",
     )
-
 if show_down and show_up:
     col1, col2 = st.columns(2)
-
     with col1:
         st.subheader("Down Direction")
         fig2_dt = create_date_train_scatter(
             df_dt, "Date vs Train (Down)", selected_trains_d2
         )
         st.plotly_chart(fig2_dt, use_container_width=True)
-
     with col2:
         st.subheader("Up Direction")
         fig2_ut = create_date_train_scatter(
@@ -187,10 +160,14 @@ if show_down and show_up:
         )
         st.plotly_chart(fig2_ut, use_container_width=True)
 elif show_down:
-    fig2 = create_date_train_scatter(df_dt, "Date vs Train (Down)", selected_trains_d2)
+    fig2 = create_date_train_scatter(
+        df_dt, "Date vs Train (Down)", selected_trains_d2
+    )
     st.plotly_chart(fig2, use_container_width=True)
 elif show_up:
-    fig2 = create_date_train_scatter(df_ut, "Date vs Train (Up)", selected_trains_d2)
+    fig2 = create_date_train_scatter(
+        df_ut, "Date vs Train (Up)", selected_trains_d2
+    )
     st.plotly_chart(fig2, use_container_width=True)
 
 st.divider()
@@ -202,14 +179,12 @@ sort_by_freq = st.checkbox(
 
 if show_down and show_up:
     col1, col2 = st.columns(2)
-
     with col1:
         st.subheader("Down Direction")
         fig3_dt = create_train_location_scatter(
             df_dt, dt_order, "Train vs Location (Down)", sort_by_freq
         )
         st.plotly_chart(fig3_dt, use_container_width=True)
-
     with col2:
         st.subheader("Up Direction")
         fig3_ut = create_train_location_scatter(
@@ -230,15 +205,12 @@ elif show_up:
 st.divider()
 
 st.header("Dashboard 4: Slip Count by Train")
-
 if show_down and show_up:
     col1, col2 = st.columns(2)
-
     with col1:
         st.subheader("Down Direction")
         fig4_dt = create_train_bar_chart(df_dt, "Slip Count by Train (Down)")
         st.plotly_chart(fig4_dt, use_container_width=True)
-
     with col2:
         st.subheader("Up Direction")
         fig4_ut = create_train_bar_chart(df_ut, "Slip Count by Train (Up)")
@@ -253,15 +225,12 @@ elif show_up:
 st.divider()
 
 st.header("Dashboard 5: Slip Count by Location")
-
 if show_down and show_up:
     col1, col2 = st.columns(2)
-
     with col1:
         st.subheader("Down Direction")
         fig5_dt = create_location_bar_chart(df_dt, "Slip Count by Location (Down)")
         st.plotly_chart(fig5_dt, use_container_width=True)
-
     with col2:
         st.subheader("Up Direction")
         fig5_ut = create_location_bar_chart(df_ut, "Slip Count by Location (Up)")
@@ -275,19 +244,37 @@ elif show_up:
 
 st.divider()
 
+st.header("Dashboard 5b: Slip Count by Date")
+if show_down and show_up:
+    col1, col2 = st.columns(2)
+    with col1:
+        st.subheader("Down Direction")
+        fig5b_dt = create_date_bar_chart(df_dt, "Slip Count by Date (Down)")
+        st.plotly_chart(fig5b_dt, use_container_width=True)
+    with col2:
+        st.subheader("Up Direction")
+        fig5b_ut = create_date_bar_chart(df_ut, "Slip Count by Date (Up)")
+        st.plotly_chart(fig5b_ut, use_container_width=True)
+elif show_down:
+    fig5b = create_date_bar_chart(df_dt, "Slip Count by Date (Down)")
+    st.plotly_chart(fig5b, use_container_width=True)
+elif show_up:
+    fig5b = create_date_bar_chart(df_ut, "Slip Count by Date (Up)")
+    st.plotly_chart(fig5b, use_container_width=True)
+
+st.divider()
+
 st.header("Dashboard 6: Correlation Heatmaps")
 
 st.subheader("A. Train vs Location")
 if show_down and show_up:
     col1, col2 = st.columns(2)
-
     with col1:
         st.markdown("**Down Direction**")
         fig6a_dt = create_heatmap_train_location(
             df_dt, dt_order, "Train vs Location (Down)"
         )
         st.plotly_chart(fig6a_dt, use_container_width=True)
-
     with col2:
         st.markdown("**Up Direction**")
         fig6a_ut = create_heatmap_train_location(
@@ -304,12 +291,10 @@ elif show_up:
 st.subheader("B. Train vs Time of Day")
 if show_down and show_up:
     col1, col2 = st.columns(2)
-
     with col1:
         st.markdown("**Down Direction**")
         fig6b_dt = create_heatmap_train_time(df_dt, "Train vs Time of Day (Down)")
         st.plotly_chart(fig6b_dt, use_container_width=True)
-
     with col2:
         st.markdown("**Up Direction**")
         fig6b_ut = create_heatmap_train_time(df_ut, "Train vs Time of Day (Up)")
@@ -324,14 +309,12 @@ elif show_up:
 st.subheader("C. Location vs Time of Day")
 if show_down and show_up:
     col1, col2 = st.columns(2)
-
     with col1:
         st.markdown("**Down Direction**")
         fig6c_dt = create_heatmap_location_time(
             df_dt, dt_order, "Location vs Time of Day (Down)"
         )
         st.plotly_chart(fig6c_dt, use_container_width=True)
-
     with col2:
         st.markdown("**Up Direction**")
         fig6c_ut = create_heatmap_location_time(
@@ -339,14 +322,10 @@ if show_down and show_up:
         )
         st.plotly_chart(fig6c_ut, use_container_width=True)
 elif show_down:
-    fig6c = create_heatmap_location_time(
-        df_dt, dt_order, "Location vs Time of Day (Down)"
-    )
+    fig6c = create_heatmap_location_time(df_dt, dt_order, "Location vs Time of Day (Down)")
     st.plotly_chart(fig6c, use_container_width=True)
 elif show_up:
-    fig6c = create_heatmap_location_time(
-        df_ut, ut_order, "Location vs Time of Day (Up)"
-    )
+    fig6c = create_heatmap_location_time(df_ut, ut_order, "Location vs Time of Day (Up)")
     st.plotly_chart(fig6c, use_container_width=True)
 
 st.divider()
@@ -356,121 +335,45 @@ st.header("Dashboard 7: Slip Records Table")
 col_filter1, col_filter2 = st.columns(2)
 
 with col_filter1:
-    st.subheader("Filter by Location")
+    st.subheader("Filter by location")
     all_locations = sorted(df["Position"].unique())
     selected_locations = st.multiselect(
-        "Select locations",
+        "Filter by location",
         options=all_locations,
         default=[],
         key="table_locations",
     )
-
 with col_filter2:
     st.subheader(f"Filter by {id_type}")
     all_ids = sorted(df["Display_ID"].unique(), key=lambda x: (len(str(x)), str(x)))
     selected_ids = st.multiselect(
-        f"Select {id_type}",
-        options=all_ids,
+        f"Filter by {id_type}",
+        options=all_ids
         default=[],
-        key="table_ids",
+        key="table_ids"
     )
-
 table_df = df.copy()
 if selected_locations:
     table_df = table_df[table_df["Position"].isin(selected_locations)]
 if selected_ids:
-    table_df = table_df[table_df["Display_ID"].isin(selected_ids)]
-
+    table_df = table_df[table_df["Display_ID"].isin(selected_ids)
 display_columns = [
     "Logger Datetime",
-    "Server Datetime",
-    "Display_ID",
-    "VOBC Status",
-    "VOBC No.",
-    "Cab No",
-    "OM",
-    "Alarm",
-    "Position",
-    "Pos",
-    "Detail",
-    "Alarm Level",
+    "Server Datetime"
+    "Display_ID"
+    "Position"
+    "Pos"
+    "VOBC Status"
+    "Detail"
+    "Alarm Level"
 ]
-
 st.dataframe(
     table_df[display_columns],
     use_container_width=True,
     hide_index=True,
     column_config={
-        "Logger Datetime": st.column_config.DatetimeColumn(
-            "Logger Datetime", format="YYYY-MM-DD HH:mm:ss"
-        ),
-        "Server Datetime": st.column_config.DatetimeColumn(
-            "Server Datetime", format="YYYY-MM-DD HH:mm:ss"
-        ),
+        "Logger Datetime": st.column_config.DatetimeColumn("Logger Datetime", format="YYYY-MM-DD HH:mm:ss"),
+        "Server Datetime": st.column_config.DatetimeColumn("Server Datetime", format="YYYY-MM-DD HH:mm:ss"),
     },
 )
-
 st.caption(f"Showing {len(table_df)} records (filtered from {len(df)} total)")
-
-st.divider()
-
-st.header("Dashboard 7: Slip Records Table")
-
-table_col1, table_col2 = st.columns(2)
-
-with table_col1:
-    all_locations = sorted(df["Position"].unique())
-    selected_locations = st.multiselect(
-        "Filter by Location",
-        options=all_locations,
-        default=[],
-        key="table_locations",
-    )
-
-with table_col2:
-    all_ids = sorted(df["Display_ID"].unique(), key=lambda x: (len(str(x)), str(x)))
-    selected_ids = st.multiselect(
-        f"Filter by {id_type}",
-        options=all_ids,
-        default=[],
-        key="table_ids",
-    )
-
-table_df = df.copy()
-if selected_locations:
-    table_df = table_df[table_df["Position"].isin(selected_locations)]
-if selected_ids:
-    table_df = table_df[table_df["Display_ID"].isin(selected_ids)]
-
-display_columns = [
-    "Logger Datetime",
-    "Server Datetime",
-    "Display_ID",
-    "Position",
-    "Pos",
-    "VOBC Status",
-    "Detail",
-    "Alarm Level",
-]
-
-table_df_display = table_df[display_columns].copy()
-table_df_display = table_df_display.rename(
-    columns={"Display_ID": id_type, "Position": "Location (VCC/LOOP)"}
-)
-table_df_display = table_df_display.sort_values("Logger Datetime", ascending=False)
-
-st.dataframe(
-    table_df_display,
-    use_container_width=True,
-    hide_index=True,
-    column_config={
-        "Logger Datetime": st.column_config.DatetimeColumn(
-            "Logger Datetime", format="YYYY-MM-DD HH:mm:ss"
-        ),
-        "Server Datetime": st.column_config.DatetimeColumn(
-            "Server Datetime", format="YYYY-MM-DD HH:mm:ss"
-        ),
-    },
-)
-
-st.caption(f"Showing {len(table_df_display)} records (filtered from {len(df)} total)")

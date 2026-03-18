@@ -196,37 +196,76 @@ def create_train_bar_chart(
 
 
 def create_location_bar_chart(
-    df: pd.DataFrame, title: str = "Slip Count by Location"
+    df: pd.DataFrame,
+    if df.empty:
+        return go.Figure()
+    
+    location_counts = (
+        df.groupby(["Position", "Date"])
+        .size()
+        .reset_index(name="Count")
+    )
+    location_totals = location_counts.groupby("Position")["Count"].sum().sort_values(ascending=False)
+    location_order = location_totals.index.tolist()
+    
+    fig = px.bar(
+        location_counts,
+        x="Date",
+        y="Count",
+        color="Display_ID",
+        title=title,
+        labels={
+            "Date": "Date",
+            "Count": "Number of Slips",
+            "Display_ID": "Train ID",
+        },
+        category_orders={"Date": date_order},
+    )
+    
+    fig.update_layout(
+        xaxis_tickangle=-45,
+        height=500,
+        xaxis_title="Date",
+        yaxis_title="Number of Slip Occurrences",
+        barmode="stack",
+        legend_title_text="Train ID",
+    )
+    
+    return fig
+
+
+def create_date_bar_chart(
+    df: pd.DataFrame, title: str = "Slip Count by Date"
 ) -> go.Figure:
     if df.empty:
         return go.Figure()
 
     df = df.copy()
 
-    location_counts = df.groupby(["Position", "Date"]).size().reset_index(name="Count")
-    location_totals = (
-        location_counts.groupby("Position")["Count"].sum().sort_values(ascending=False)
-    )
-    location_order = location_totals.index.tolist()
+    date_counts = df.groupby(["Date", "Display_ID"]).size().reset_index(name="Count")
+    date_order = sorted(date_counts["Date"].unique())
 
     fig = px.bar(
-        location_counts,
-        x="Position",
+        date_counts,
+        x="Date",
         y="Count",
-        color="Date",
+        color="Display_ID",
         title=title,
-        labels={"Position": "Location", "Count": "Number of Slips", "Date": "Date"},
-        category_orders={"Position": location_order},
-        color_continuous_scale="Viridis",
+        labels={
+            "Date": "Date",
+            "Count": "Number of Slips",
+            "Display_ID": "Train ID",
+        },
+        category_orders={"Date": date_order},
     )
 
     fig.update_layout(
         xaxis_tickangle=-45,
         height=500,
-        xaxis_title="Location (VCC/LOOP)",
+        xaxis_title="Date",
         yaxis_title="Number of Slip Occurrences",
         barmode="stack",
-        coloraxis_colorbar=dict(title="Date (darker=newer)"),
+        legend_title_text="Train ID",
     )
 
     return fig
