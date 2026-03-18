@@ -381,6 +381,9 @@ def create_date_bar_chart(
 
     date_counts = df.groupby(["Date", "Display_ID"]).size().reset_index(name="Count")
     date_order = sorted(date_counts["Date"].unique())
+    train_order = sorted(
+        date_counts["Display_ID"].unique(), key=lambda x: (len(str(x)), str(x))
+    )
 
     fig = px.bar(
         date_counts,
@@ -393,7 +396,7 @@ def create_date_bar_chart(
             "Count": "Number of Slips",
             "Display_ID": "Train ID",
         },
-        category_orders={"Date": date_order},
+        category_orders={"Date": date_order, "Display_ID": train_order},
     )
 
     fig.update_layout(
