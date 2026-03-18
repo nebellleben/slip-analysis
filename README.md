@@ -1,6 +1,6 @@
 # Slip Analysis Dashboard
 
-An interactive Streamlit dashboard for analyzing train slip occurrences data from Hong Kong's TML (Tuen Ma Line) railway system.
+An interactive Streamlit dashboard for analyzing train slip occurrences data.
 
 ## Features
 
