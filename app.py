@@ -21,6 +21,7 @@ from utils.data_processor import (
 )
 from utils.charts import (
     create_date_location_scatter,
+    create_date_train_scatter,
     create_train_location_scatter,
     create_train_bar_chart,
     create_location_bar_chart,
@@ -154,11 +155,46 @@ elif show_up:
     fig1 = create_date_location_scatter(
         df_ut, ut_order, "Date vs Location (Up)", selected_trains_d1
     )
-    st.plotly_chart(fig1, use_container_width=True)
+show_all_trains = st.checkbox("Show all trains", value=True, key="d2_all_trains")
+
+selected_trains_d2 = None
+if not show_all_trains:
+    all_trains = sorted(df["Display_ID"].unique())
+    selected_trains_d2 = st.multiselect(
+        "Select trains",
+        options=all_trains,
+        default=all_trains[:5] if len(all_trains) > 5 else all_trains,
+        key="d2_trains",
+    )
+
+if show_down and show_up:
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.subheader("Down Direction")
+        fig1b_dt = create_date_train_scatter(
+            df_dt, "Date vs Train (Down)", selected_trains_d1b
+        )
+        st.plotly_chart(fig1b_dt, use_container_width=True)
+
+    with col2:
+        st.subheader("Up Direction")
+        fig1b_ut = create_date_train_scatter(
+            df_ut, "Date vs Train (Up)", selected_trains_d1b
+        )
+        st.plotly_chart(fig1b_ut, use_container_width=True)
+elif show_down:
+    fig1b = create_date_train_scatter(
+        df_dt, "Date vs Train (Down)", selected_trains_d1b
+    )
+    st.plotly_chart(fig1b, use_container_width=True)
+elif show_up:
+    fig1b = create_date_train_scatter(df_ut, "Date vs Train (Up)", selected_trains_d1b)
+    st.plotly_chart(fig1b, use_container_width=True)
 
 st.divider()
 
-st.header("Dashboard 2: Train vs Location")
+st.header("Dashboard 3: Train vs Location")
 sort_by_freq = st.checkbox(
     "Sort trains by slip frequency (ascending)", value=False, key="d2_sort_freq"
 )
@@ -192,7 +228,7 @@ elif show_up:
 
 st.divider()
 
-st.header("Dashboard 3: Slip Count by Train")
+st.header("Dashboard 4: Slip Count by Train")
 
 if show_down and show_up:
     col1, col2 = st.columns(2)
@@ -215,7 +251,7 @@ elif show_up:
 
 st.divider()
 
-st.header("Dashboard 4: Slip Count by Location")
+st.header("Dashboard 5: Slip Count by Location")
 
 if show_down and show_up:
     col1, col2 = st.columns(2)
@@ -238,7 +274,7 @@ elif show_up:
 
 st.divider()
 
-st.header("Dashboard 5: Correlation Heatmaps")
+st.header("Dashboard 6: Correlation Heatmaps")
 
 st.subheader("A. Train vs Location")
 if show_down and show_up:

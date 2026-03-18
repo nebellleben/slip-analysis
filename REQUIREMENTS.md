@@ -79,7 +79,16 @@ An interactive Streamlit dashboard for analyzing train slip occurrences with fil
   - All trains (default)
   - Individual trains (multi-select dropdown)
 
-### Dashboard 2: Train ID vs Location Scatter Plot
+### Dashboard 2: Date vs Train Scatter Plot
+- **Y-axis**: Date (older to newer, bottom to top)
+- **X-axis**: Train ID
+- **Visualization**: Dot plot where size indicates number of occurrences
+- **Hue**: Date shown as color (darker = more recent)
+- **Filter**: Checkbox to toggle between:
+  - All trains (default)
+  - Individual trains (multi-select dropdown)
+
+### Dashboard 3: Train ID vs Location Scatter Plot
 - **Y-axis**: Train ID
 - **X-axis**: Location (sorted by loop_sequence order)
 - **Visualization**: Dot plot showing slip occurrences
@@ -88,18 +97,18 @@ An interactive Streamlit dashboard for analyzing train slip occurrences with fil
   - Frequency of slips (ascending order)
   - Train ID number (default)
 
-### Dashboard 3: Slip Count by Train (Bar Chart)
+### Dashboard 4: Slip Count by Train (Bar Chart)
 - **Y-axis**: Number of slip occurrences
 - **X-axis**: Train ID (sorted in descending order by count)
 - **Hue**: Date of occurrence (darker = more recent)
 
-### Dashboard 4: Slip Count by Location (Bar Chart)
+### Dashboard 5: Slip Count by Location (Bar Chart)
 - **Y-axis**: Number of slip occurrences
 - **X-axis**: Location (VCC/LOOP combination, sorted descending by count)
 - **Note**: Does NOT need to follow loop_sequence order
 - **Hue**: Date of occurrence (darker = more recent)
 
-### Dashboard 5: Correlation Heatmaps
+### Dashboard 6: Correlation Heatmaps
 Three separate heatmap charts showing slip correlation:
 - **A. Train ID vs Location**
 - **B. Train ID vs Time of Day**

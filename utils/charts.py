@@ -56,6 +56,60 @@ def create_date_location_scatter(
     return fig
 
 
+def create_date_train_scatter(
+    df: pd.DataFrame,
+    title: str = "Slip Occurrences: Date vs Train",
+    selected_trains: Optional[List[str]] = None,
+) -> go.Figure:
+    if df.empty:
+        return go.Figure()
+
+    df = df.copy()
+
+    if selected_trains:
+        df = df[df["Display_ID"].isin(selected_trains)]
+
+    df = get_date_normalized(df)
+
+    occurrence_counts = (
+        df.groupby(["Date", "Display_ID"])
+        .agg(Count=("Display_ID", "size"), Avg_Date=("Date_Numeric", "mean"))
+        .reset_index()
+    )
+
+    train_order = sorted(
+        occurrence_counts["Display_ID"].unique(),
+        key=lambda x: (len(str(x)), str(x)),
+    )
+
+    fig = px.scatter(
+        occurrence_counts,
+        x="Display_ID",
+        y="Date",
+        size="Count",
+        color="Avg_Date",
+        title=title,
+        labels={
+            "Display_ID": "Train ID",
+            "Date": "Date",
+            "Count": "Occurrences",
+            "Avg_Date": "Date (normalized)",
+        },
+        category_orders={"Display_ID": train_order},
+        color_continuous_scale="Greys",
+    )
+
+    fig.update_layout(
+        xaxis_tickangle=-45,
+        height=500,
+        xaxis_title="Train ID",
+        yaxis_title="Date",
+        coloraxis_colorbar=dict(title="Date (darker=recent)"),
+    )
+
+    return fig
+
+
 def create_train_location_scatter(
     df: pd.DataFrame,
     location_order: Dict[str, int],
