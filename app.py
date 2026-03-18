@@ -71,7 +71,7 @@ id_type = st.sidebar.selectbox(
     "ID Type", options=["Train ID", "Cab ID", "VOBC"], index=0
 )
 
-df, dt_order, ut_order = build_location_order_map(dt_seq, ut_seq)
+dt_order, ut_order = build_location_order_map(dt_seq, ut_seq)
 
 valid_locations = get_valid_locations(dt_seq, ut_seq)
 df = filter_valid_locations(alarm_df, valid_locations)
