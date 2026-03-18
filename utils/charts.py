@@ -43,9 +43,9 @@ def _add_rainfall_background(
             rainfall = 0
 
         if rainfall > 0:
-            alpha = min(0.7, rainfall / max_rainfall * 0.65 + 0.05)
+            alpha = min(0.75, rainfall / max_rainfall * 0.70 + 0.08)
         else:
-            alpha = 0.02
+            alpha = 0.03
 
         if i < len(unique_dates) - 1:
             next_dt = unique_dates[i + 1]
@@ -61,7 +61,7 @@ def _add_rainfall_background(
             y0=str(dt),
             x1=1,
             y1=y1,
-            fillcolor=f"rgba(0, 100, 200, {alpha})",
+            fillcolor=f"rgba(25, 55, 140, {alpha})",
             layer="below",
             line=dict(width=0),
         )
