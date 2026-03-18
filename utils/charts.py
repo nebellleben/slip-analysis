@@ -96,7 +96,7 @@ def create_date_train_scatter(
     fig.update_traces(
         marker=dict(
             sizemin=8,
-            line=dict(width=1, color="DarkSlateGrey"),
+            line=dict(width=1, color="white"),
         )
     )
     fig.update_layout(
