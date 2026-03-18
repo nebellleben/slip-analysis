@@ -83,7 +83,6 @@ def create_date_train_scatter(
         x="Display_ID",
         y="Date",
         size="Count",
-        color="Count",
         title=title,
         labels={
             "Display_ID": "Train ID",
@@ -91,7 +90,6 @@ def create_date_train_scatter(
             "Count": "Occurrences",
         },
         category_orders={"Display_ID": train_order},
-        color_continuous_scale="Greys_r",
     )
 
     fig.update_layout(
@@ -99,7 +97,6 @@ def create_date_train_scatter(
         height=500,
         xaxis_title="Train ID",
         yaxis_title="Date",
-        coloraxis_colorbar=dict(title="Slip Count"),
     )
 
     return fig
@@ -143,7 +140,7 @@ def create_train_location_scatter(
             ],
             "Display_ID": train_order,
         },
-        color_continuous_scale="Greys_r",
+        color_continuous_scale="Viridis",
     )
 
     fig.update_layout(
@@ -151,7 +148,7 @@ def create_train_location_scatter(
         height=max(500, len(train_order) * 15),
         xaxis_title="Location (Sequential Order)",
         yaxis_title="Train ID",
-        coloraxis_colorbar=dict(title="Date (darker=newer)"),
+        coloraxis_colorbar=dict(title="Date"),
     )
 
     return fig
@@ -183,7 +180,7 @@ def create_train_bar_chart(
             "Date": "Date",
         },
         category_orders={"Display_ID": train_order},
-        color_continuous_scale="Greys_r",
+        color_continuous_scale="Viridis",
     )
 
     fig.update_layout(
@@ -192,7 +189,7 @@ def create_train_bar_chart(
         xaxis_title="Train ID",
         yaxis_title="Number of Slip Occurrences",
         barmode="stack",
-        coloraxis_colorbar=dict(title="Date (darker=newer)"),
+        coloraxis_colorbar=dict(title="Date"),
     )
 
     return fig
@@ -220,7 +217,7 @@ def create_location_bar_chart(
         title=title,
         labels={"Position": "Location", "Count": "Number of Slips", "Date": "Date"},
         category_orders={"Position": location_order},
-        color_continuous_scale="Greys_r",
+        color_continuous_scale="Viridis",
     )
 
     fig.update_layout(

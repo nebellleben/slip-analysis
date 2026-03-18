@@ -83,7 +83,6 @@ An interactive Streamlit dashboard for analyzing train slip occurrences with fil
 - **Y-axis**: Date (older to newer, bottom to top)
 - **X-axis**: Train ID
 - **Visualization**: Dot plot where size indicates number of occurrences
-- **Hue**: Date shown as color (darker = newer)
 - **Filter**: Checkbox to toggle between:
   - All trains (default)
   - Individual trains (multi-select dropdown)
@@ -92,7 +91,7 @@ An interactive Streamlit dashboard for analyzing train slip occurrences with fil
 - **Y-axis**: Train ID
 - **X-axis**: Location (sorted by loop_sequence order)
 - **Visualization**: Dot plot showing slip occurrences
-- **Third dimension**: Date shown as hue (darker = newer)
+- **Third dimension**: Date shown as hue using Viridis palette (darker = older)
 - **Sorting option**: Checkbox to sort trains by:
   - Frequency of slips (ascending order)
   - Train ID number (default)
@@ -101,14 +100,14 @@ An interactive Streamlit dashboard for analyzing train slip occurrences with fil
 - **Y-axis**: Number of slip occurrences
 - **X-axis**: Train ID (sorted in descending order by total count)
 - **Visualization**: Stacked bar chart where each bar is stacked by date
-- **Hue**: Each segment represents a different date (darker = newer)
+- **Hue**: Each segment represents a different date using Viridis palette (darker = older)
 
 ### Dashboard 5: Slip Count by Location (Bar Chart)
 - **Y-axis**: Number of slip occurrences
 - **X-axis**: Location (VCC/LOOP combination, sorted descending by count)
 - **Note**: Does NOT need to follow loop_sequence order
 - **Visualization**: Stacked bar chart where each bar is stacked by date
-- **Hue**: Each segment represents a different date (darker = newer)
+- **Hue**: Each segment represents a different date using Viridis palette (darker = older)
 
 ### Dashboard 6: Correlation Heatmaps
 Three separate heatmap charts showing slip correlation:
