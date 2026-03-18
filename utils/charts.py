@@ -196,41 +196,43 @@ def create_train_bar_chart(
 
 
 def create_location_bar_chart(
-    df: pd.DataFrame,
+    df: pd.DataFrame, title: str = "Slip Count by Location"
+) -> go.Figure:
     if df.empty:
         return go.Figure()
-    
-    location_counts = (
-        df.groupby(["Position", "Date"])
-        .size()
-        .reset_index(name="Count")
+
+    df = df.copy()
+
+    location_counts = df.groupby(["Position", "Date"]).size().reset_index(name="Count")
+    location_totals = (
+        location_counts.groupby("Position")["Count"].sum().sort_values(ascending=False)
     )
-    location_totals = location_counts.groupby("Position")["Count"].sum().sort_values(ascending=False)
     location_order = location_totals.index.tolist()
-    
+
     fig = px.bar(
         location_counts,
-        x="Date",
+        x="Position",
         y="Count",
-        color="Display_ID",
+        color="Date",
         title=title,
         labels={
-            "Date": "Date",
+            "Position": "Location",
             "Count": "Number of Slips",
-            "Display_ID": "Train ID",
+            "Date": "Date",
         },
-        category_orders={"Date": date_order},
+        category_orders={"Position": location_order},
+        color_continuous_scale="Viridis",
     )
-    
+
     fig.update_layout(
         xaxis_tickangle=-45,
         height=500,
-        xaxis_title="Date",
+        xaxis_title="Location",
         yaxis_title="Number of Slip Occurrences",
         barmode="stack",
-        legend_title_text="Train ID",
+        coloraxis_colorbar=dict(title="Date"),
     )
-    
+
     return fig
 
 

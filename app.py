@@ -48,8 +48,8 @@ def load_data():
 alarm_df, dt_seq, ut_seq, train_mapping = load_data()
 alarm_df["Date"] = alarm_df["Logger Datetime"].dt.date
 
-min_date = pd.to_datetime(alarm_df["Date"]).min()
-max_date = pd.to_datetime(alarm_df["Date"]).max()
+min_date = alarm_df["Date"].min()
+max_date = alarm_df["Date"].max()
 
 date_range = st.sidebar.slider(
     "Date Range",
