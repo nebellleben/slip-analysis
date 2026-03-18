@@ -115,6 +115,7 @@ def create_train_location_scatter(
 
     df = df.copy()
     df = get_date_normalized(df)
+    df["Date_Numeric_Reversed"] = 1 - df["Date_Numeric"]
     df["Location_Order"] = df["Position"].map(location_order)
     df = df.dropna(subset=["Location_Order"])
 
@@ -127,19 +128,17 @@ def create_train_location_scatter(
         )
 
     unique_dates = sorted(df["Date"].unique())
-    date_min = unique_dates[0]
-    date_max = unique_dates[-1]
 
     fig = px.scatter(
         df,
         x="Position",
         y="Display_ID",
-        color="Date_Numeric",
+        color="Date_Numeric_Reversed",
         title=title,
         labels={
             "Position": "Location",
             "Display_ID": "Train",
-            "Date_Numeric": "Date",
+            "Date_Numeric_Reversed": "Date",
         },
         category_orders={
             "Position": [
@@ -154,7 +153,8 @@ def create_train_location_scatter(
     n_ticks = min(10, len(unique_dates))
     tick_vals = [i / (n_ticks - 1) for i in range(n_ticks)] if n_ticks > 1 else [0]
     tick_labels = [
-        str(unique_dates[int(v * (len(unique_dates) - 1))]) for v in tick_vals
+        str(unique_dates[len(unique_dates) - 1 - int(v * (len(unique_dates) - 1))])
+        for v in tick_vals
     ]
 
     fig.update_layout(
@@ -199,7 +199,7 @@ def create_train_bar_chart(
         date_data = train_counts[train_counts["Date"] == date]
         date_numeric = date_data["Date_Numeric"].iloc[0]
 
-        color_val = cm.viridis(date_numeric)
+        color_val = cm.viridis(1 - date_numeric)
 
         fig.add_trace(
             go.Bar(
@@ -214,7 +214,8 @@ def create_train_bar_chart(
     n_ticks = min(10, len(unique_dates))
     tick_vals = [i / (n_ticks - 1) for i in range(n_ticks)] if n_ticks > 1 else [0]
     tick_labels = [
-        str(unique_dates[int(v * (len(unique_dates) - 1))]) for v in tick_vals
+        str(unique_dates[len(unique_dates) - 1 - int(v * (len(unique_dates) - 1))])
+        for v in tick_vals
     ]
 
     fig.add_trace(
@@ -279,7 +280,7 @@ def create_location_bar_chart(
         date_data = location_counts[location_counts["Date"] == date]
         date_numeric = date_data["Date_Numeric"].iloc[0]
 
-        color_val = cm.viridis(date_numeric)
+        color_val = cm.viridis(1 - date_numeric)
 
         fig.add_trace(
             go.Bar(
@@ -294,7 +295,8 @@ def create_location_bar_chart(
     n_ticks = min(10, len(unique_dates))
     tick_vals = [i / (n_ticks - 1) for i in range(n_ticks)] if n_ticks > 1 else [0]
     tick_labels = [
-        str(unique_dates[int(v * (len(unique_dates) - 1))]) for v in tick_vals
+        str(unique_dates[len(unique_dates) - 1 - int(v * (len(unique_dates) - 1))])
+        for v in tick_vals
     ]
 
     fig.add_trace(
