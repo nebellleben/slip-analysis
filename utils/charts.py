@@ -93,7 +93,12 @@ def create_date_train_scatter(
         category_orders={"Display_ID": train_order},
     )
 
-    fig.update_traces(marker=dict(sizemin=8))
+    fig.update_traces(
+        marker=dict(
+            sizemin=8,
+            line=dict(width=1, color="DarkSlateGrey"),
+        )
+    )
     fig.update_layout(
         xaxis_tickangle=-45,
         height=500,
