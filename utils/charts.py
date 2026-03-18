@@ -69,6 +69,37 @@ def _add_rainfall_background(
             line=dict(width=0),
         )
 
+    n_ticks = 5
+    tick_vals = [i / (n_ticks - 1) for i in range(n_ticks)]
+    tick_labels = [f"{int(v * max_rainfall)}" for v in tick_vals]
+
+    fig.add_trace(
+        go.Scatter(
+            x=[None],
+            y=[None],
+            mode="markers",
+            marker=dict(
+                colorscale=[
+                    [0, "rgba(25, 55, 140, 0.03)"],
+                    [1, "rgba(25, 55, 140, 0.75)"],
+                ],
+                cmin=0,
+                cmax=max_rainfall,
+                colorbar=dict(
+                    title="Rainfall (mm)",
+                    tickvals=[v * max_rainfall for v in tick_vals],
+                    ticktext=tick_labels,
+                    len=0.6,
+                    y=0.5,
+                    yanchor="middle",
+                ),
+                showscale=True,
+            ),
+            hoverinfo="none",
+            showlegend=False,
+        )
+    )
+
 
 def create_date_location_scatter(
     df: pd.DataFrame,
